@@ -36,6 +36,7 @@
               class="input"
               type="text"
               placeholder="请输入邮箱地址"
+              :placeholder-style="'color:#9aa4b2'"
               v-model="form.username"
             />
           </view>
@@ -45,19 +46,22 @@
               class="input"
               type="text"
               placeholder="请输入邮箱验证码"
+              :placeholder-style="'color:#9aa4b2'"
               v-model="form.password"
             />
             <button class="code-btn" @click="getEmailCode">获取验证码</button>
           </view>
 
           <view class="agreements">
-            <label class="agree-item" @click="agree = !agree">
-              <view class="checkbox" :class="{ checked: agree }"></view>
-              <text>我已阅读并同意</text>
-              <text class="link" @click.stop="openProtocol('privacy')">隐私协议</text>
-              <text>和</text>
-              <text class="link" @click.stop="openProtocol('user')">用户服务协议</text>
-            </label>
+            <checkbox-group @change="changeAgree">
+              <label class="agree-item">
+                <checkbox value="agree" :checked="agree" color="#2b74ff" />
+                <text>我已阅读并同意</text>
+                <text class="link" @click.stop="openProtocol('privacy')">隐私协议</text>
+                <text>和</text>
+                <text class="link" @click.stop="openProtocol('user')">用户服务协议</text>
+              </label>
+            </checkbox-group>
           </view>
 
           <button
@@ -69,7 +73,7 @@
         </view>
 
         <view class="other">
-          <text class="other-text" @click="goToRegister">其他方式登录</text>
+          <text class="other-text" @click="goToRegister">注册</text>
         </view>
       </view>
     </view>
@@ -112,6 +116,10 @@ export default {
     openProtocol(type) {
       const title = type === 'privacy' ? '隐私协议' : '用户服务协议'
       uni.showModal({ title, content: '协议内容示例', showCancel: false })
+    },
+    changeAgree(e) {
+      const values = (e && e.detail && e.detail.value) || []
+      this.agree = values.indexOf('agree') > -1
     },
     
     // 处理登录
@@ -190,183 +198,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.login-page {
-  min-height: 100vh;
-  background: radial-gradient(1200rpx 600rpx at 50% -100rpx, rgba(43,116,255,0.28) 0%, rgba(15,17,21,0) 60%), #0f1115;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60rpx 40rpx;
-}
-
-.login-dialog {
-  width: 88vw;
-  max-width: 1100rpx;
-  background: #fff;
-  border-radius: 20rpx;
-  display: flex;
-  overflow: hidden;
-  box-shadow: 0 30rpx 120rpx rgba(0, 0, 0, 0.5);
-}
-
-.dialog-left {
-  width: 46%;
-  background: linear-gradient(180deg, #f3f7ff 0%, #eaf1ff 100%);
-  padding: 50rpx 40rpx;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.brand {
-  color: #1f2329;
-}
-
-.brand-logo {
-  width: 72rpx;
-  height: 72rpx;
-  margin-bottom: 20rpx;
-}
-
-.brand-title {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  margin-bottom: 8rpx;
-}
-
-.brand-sub {
-  color: #5e6d82;
-  font-size: 26rpx;
-}
-
-.left-graphic {
-  height: 280rpx;
-  border-radius: 16rpx;
-  background: radial-gradient(200rpx 200rpx at 30% 30%, rgba(43,116,255,0.25), rgba(43,116,255,0));
-}
-
-.dialog-right {
-  width: 54%;
-  padding: 40rpx;
-}
-
-.tabs {
-  display: flex;
-  gap: 16rpx;
-  margin-bottom: 30rpx;
-}
-
-.tab {
-  height: 64rpx;
-  padding: 0 24rpx;
-  border-radius: 36rpx;
-  background: #f5f7fa;
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  color: #5e6d82;
-}
-
-.tab.active {
-  background: #e8f0ff;
-  color: #2b74ff;
-}
-
-.hint {
-  font-size: 26rpx;
-  color: #9aa4b2;
-  margin-bottom: 30rpx;
-}
-
-.form-item {
-  margin-bottom: 24rpx;
-}
-
-.input {
-  width: 100%;
-  height: 84rpx;
-  border: 2rpx solid #e6e8eb;
-  border-radius: 12rpx;
-  padding: 0 22rpx;
-  font-size: 28rpx;
-  background-color: #f7f7f8;
-}
-
-.input:focus {
-  border-color: #2b74ff;
-  background-color: #fff;
-}
-
-.code-row {
-  display: flex;
-  gap: 16rpx;
-}
-
-.code-row .input {
-  flex: 1;
-}
-
-.code-btn {
-  width: 200rpx;
-  height: 84rpx;
-  border-radius: 12rpx;
-  background: #eef3ff;
-  color: #2b74ff;
-  font-size: 26rpx;
-}
-
-.agreements {
-  margin: 10rpx 0 20rpx;
-  color: #5e6d82;
-  font-size: 24rpx;
-}
-
-.agree-item {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.checkbox {
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 6rpx;
-  background: #f2f3f5;
-  margin-right: 12rpx;
-}
-
-.checkbox.checked {
-  background: #2b74ff;
-}
-
-.link {
-  color: #2b74ff;
-  margin: 0 8rpx;
-}
-
-.login-btn {
-  width: 100%;
-  height: 84rpx;
-  background-color: #2b74ff;
-  color: #fff;
-  border: none;
-  border-radius: 12rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-}
-
-.login-btn.disabled {
-  background-color: #9aa4b2;
-}
-
-.other {
-  margin-top: 24rpx;
-  text-align: center;
-}
-
-.other-text {
-  color: #5e6d82;
-  font-size: 24rpx;
-}
 </style>
