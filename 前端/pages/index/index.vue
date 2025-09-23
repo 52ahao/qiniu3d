@@ -105,20 +105,20 @@ export default {
         this.hotModels = [
           {
             id: 1,
-            name: '可爱角色',
+            name: '猫头鹰',
             original_image: 'https://cdn-3d-prod.hunyuan.tencent.com/public/3d/20250702/goodcase/31_render.png?imageMogr2/thumbnail/320x/quality/80/strip/format/webp',
             model_type: 'character'
           },
           {
             id: 2,
             name: '科幻建筑',
-            original_image: '/static/model2.jpg',
+            original_image: 'https://cdn-3d-prod.hunyuan.tencent.com/public/3d/20250702/goodcase/15_render.png?imageMogr2/thumbnail/400x/quality/80/strip',
             model_type: 'object'
           },
           {
             id: 3,
             name: '动漫场景',
-            original_image: '/static/model3.jpg',
+            original_image: 'https://cdn-3d-prod.hunyuan.tencent.com/public/3d/20250702/goodcase/80_render.png?imageMogr2/thumbnail/320x/quality/80/strip',
             model_type: 'scene'
           }
         ]

@@ -66,6 +66,8 @@
 		// "app-plus": {
 		// 	"background": "#efeff4"
 		// }
+		"navigationStyle": "custom"
+
 	},
 	"tabBar": {
 		"color": "#9aa4b2",
