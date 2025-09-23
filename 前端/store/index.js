@@ -96,7 +96,8 @@ const actions = {
   }
 }
 
-const getters = {
+// 原始 getter 定义（函数形式）
+const rawGetters = {
   // 获取用户信息
   user: state => state.user,
   // 是否已登录
@@ -105,9 +106,43 @@ const getters = {
   points: state => state.points
 }
 
-export default {
+// 轻量 store 适配：提供 commit/dispatch，并把 getters 暴露为可直接取值的属性
+const store = {
   state,
   mutations,
   actions,
-  getters
+  getters: {}
 }
+
+// 提供 commit
+store.commit = function(type, payload) {
+  const mutation = store.mutations[type]
+  if (typeof mutation === 'function') {
+    mutation(store.state, payload)
+  } else {
+    console.warn('[store] unknown mutation:', type)
+  }
+}
+
+// 提供 dispatch（与 mapActions 兼容）
+store.dispatch = function(type, payload) {
+  const action = store.actions[type]
+  if (typeof action === 'function') {
+    return action({ commit: store.commit, state: store.state }, payload)
+  } else {
+    console.warn('[store] unknown action:', type)
+    return Promise.reject(new Error('unknown action'))
+  }
+}
+
+// 将 getters 暴露为取值属性（保持与 Vuex 相同使用方式）
+Object.keys(rawGetters).forEach((key) => {
+  Object.defineProperty(store.getters, key, {
+    enumerable: true,
+    get() {
+      return rawGetters[key](store.state)
+    }
+  })
+})
+
+export default store

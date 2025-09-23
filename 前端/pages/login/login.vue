@@ -154,13 +154,13 @@ export default {
 <style lang="scss" scoped>
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 100rpx 60rpx 60rpx;
+  background: radial-gradient(1200rpx 600rpx at 50% -100rpx, rgba(43,116,255,0.28) 0%, rgba(15,17,21,0) 60%), #0f1115;
+  padding: 120rpx 60rpx 60rpx;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 80rpx;
+  margin-bottom: 60rpx;
 }
 
 .logo {
@@ -173,21 +173,21 @@ export default {
   display: block;
   font-size: 48rpx;
   font-weight: bold;
-  color: #fff;
+  color: #e6e8eb;
   margin-bottom: 10rpx;
 }
 
 .subtitle {
   display: block;
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #9aa4b2;
 }
 
 .form-container {
-  background-color: #fff;
-  border-radius: 20rpx;
+  background-color: #ffffff;
+  border-radius: 24rpx;
   padding: 60rpx 40rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20rpx 80rpx rgba(0, 0, 0, 0.35);
 }
 
 .form-item {
@@ -196,44 +196,44 @@ export default {
 
 .input {
   width: 100%;
-  height: 80rpx;
-  border: 2rpx solid #e5e5e5;
-  border-radius: 10rpx;
-  padding: 0 20rpx;
+  height: 84rpx;
+  border: 2rpx solid #e6e8eb;
+  border-radius: 12rpx;
+  padding: 0 22rpx;
   font-size: 28rpx;
-  background-color: #f8f8f8;
+  background-color: #f7f7f8;
 }
 
 .input:focus {
-  border-color: #007aff;
+  border-color: #2b74ff;
   background-color: #fff;
 }
 
 .login-btn {
   width: 100%;
-  height: 80rpx;
-  background-color: #007aff;
+  height: 84rpx;
+  background-color: #2b74ff;
   color: #fff;
   border: none;
-  border-radius: 10rpx;
+  border-radius: 12rpx;
   font-size: 32rpx;
   font-weight: bold;
   margin-bottom: 30rpx;
 }
 
 .login-btn.disabled {
-  background-color: #ccc;
+  background-color: #9aa4b2;
 }
 
 .register-link {
   text-align: center;
   margin-bottom: 40rpx;
   font-size: 28rpx;
-  color: #666;
+  color: #9aa4b2;
 }
 
 .link {
-  color: #007aff;
+  color: #2b74ff;
   margin-left: 10rpx;
 }
 
@@ -242,7 +242,7 @@ export default {
   margin-bottom: 40rpx;
   position: relative;
   font-size: 24rpx;
-  color: #999;
+  color: #9aa4b2;
 }
 
 .divider::before {
@@ -252,7 +252,7 @@ export default {
   left: 0;
   right: 0;
   height: 2rpx;
-  background-color: #e5e5e5;
+  background-color: #e6e8eb;
   z-index: 1;
 }
 
@@ -271,8 +271,8 @@ export default {
 .third-btn {
   flex: 1;
   height: 80rpx;
-  border: 2rpx solid #e5e5e5;
-  border-radius: 10rpx;
+  border: 2rpx solid #e6e8eb;
+  border-radius: 12rpx;
   background-color: #fff;
   display: flex;
   align-items: center;

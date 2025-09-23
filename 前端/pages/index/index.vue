@@ -205,12 +205,12 @@ export default {
 <style lang="scss" scoped>
 .container {
   padding: 0;
-  background-color: #f5f5f5;
 }
 
+// 顶部横幅区域
 .banner {
-  height: 400rpx;
-  margin-bottom: 20rpx;
+  height: 460rpx;
+  margin-bottom: 24rpx;
 }
 
 .banner-image {
@@ -218,12 +218,15 @@ export default {
   height: 100%;
 }
 
+// 功能入口改为暗色卡片
 .function-grid {
   display: flex;
   flex-wrap: wrap;
-  padding: 20rpx;
-  background-color: #fff;
-  margin-bottom: 20rpx;
+  padding: 24rpx;
+  background: #141821;
+  margin-bottom: 24rpx;
+  border-top: 1rpx solid rgba(255,255,255,0.04);
+  border-bottom: 1rpx solid rgba(255,255,255,0.04);
 }
 
 .function-item {
@@ -231,7 +234,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 24rpx 0;
 }
 
 .function-icon {
@@ -241,26 +244,28 @@ export default {
 
 .function-text {
   font-size: 24rpx;
-  color: #666;
+  color: rgba(230,232,235,0.9);
 }
 
+// 区块标题与卡片
 .section {
-  background-color: #fff;
-  margin-bottom: 20rpx;
+  background: #0f1115;
+  margin-bottom: 24rpx;
 }
 
 .section-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30rpx 20rpx 20rpx;
+  padding: 30rpx 24rpx 20rpx;
   font-size: 32rpx;
   font-weight: bold;
+  color: #e6e8eb;
 }
 
 .more {
   font-size: 28rpx;
-  color: #007aff;
+  color: #8ab4ff;
 }
 
 .model-scroll {
@@ -269,47 +274,48 @@ export default {
 
 .model-list {
   display: flex;
-  padding: 0 20rpx 20rpx;
+  padding: 0 24rpx 24rpx;
 }
 
 .model-item {
-  width: 200rpx;
+  width: 220rpx;
   margin-right: 20rpx;
-  background-color: #f8f8f8;
-  border-radius: 10rpx;
+  background: #141821;
+  border-radius: 16rpx;
   overflow: hidden;
+  border: 1rpx solid rgba(255,255,255,0.06);
 }
 
 .model-image {
   width: 100%;
-  height: 150rpx;
+  height: 160rpx;
 }
 
 .model-info {
-  padding: 15rpx;
+  padding: 18rpx;
 }
 
 .model-name {
-  font-size: 24rpx;
-  color: #333;
+  font-size: 26rpx;
+  color: #e6e8eb;
   display: block;
-  margin-bottom: 5rpx;
+  margin-bottom: 6rpx;
 }
 
 .model-type {
-  font-size: 20rpx;
-  color: #999;
+  font-size: 22rpx;
+  color: #9aa4b2;
 }
 
 .points-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30rpx 20rpx;
-  background-color: #fff;
-  margin: 20rpx;
-  border-radius: 10rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+  padding: 30rpx 24rpx;
+  background: #141821;
+  margin: 24rpx;
+  border-radius: 14rpx;
+  border: 1rpx solid rgba(255,255,255,0.06);
 }
 
 .points-info {
@@ -319,22 +325,22 @@ export default {
 
 .points-label {
   font-size: 28rpx;
-  color: #666;
+  color: #9aa4b2;
   margin-bottom: 10rpx;
 }
 
 .points-value {
   font-size: 36rpx;
   font-weight: bold;
-  color: #007aff;
+  color: #8ab4ff;
 }
 
 .points-btn {
-  background-color: #007aff;
+  background-color: #2b74ff;
   color: #fff;
   border: none;
-  border-radius: 25rpx;
-  padding: 15rpx 30rpx;
+  border-radius: 26rpx;
+  padding: 16rpx 32rpx;
   font-size: 28rpx;
 }
 </style>

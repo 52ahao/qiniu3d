@@ -18,15 +18,16 @@
 	@import '@/uni_modules/uni-scss/index.scss';
 	/* #ifndef APP-NVUE */
 	@import '@/static/customicons.css';
-	// 设置整个项目的背景色
+	// 设置整个项目的背景色（暗色主题）
 	page {
-		background-color: #f5f5f5;
+		background-color: #0f1115;
+		color: #e6e8eb;
 	}
 
 	/* #endif */
 	.example-info {
 		font-size: 14px;
-		color: #333;
+		color: #e6e8eb;
 		padding: 10px;
 	}
 </style>
