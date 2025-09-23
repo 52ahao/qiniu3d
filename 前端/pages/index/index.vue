@@ -1,5 +1,5 @@
 <template>
-  <view class="container">
+  <view class="container page">
     <!-- 轮播图 -->
     <swiper class="banner" indicator-dots="true" autoplay="true" interval="3000" duration="500">
       <swiper-item v-for="(item, index) in banners" :key="index">
@@ -10,19 +10,19 @@
     <!-- 功能入口 -->
     <view class="function-grid">
       <view class="function-item" @click="goToGenerate">
-        <view class="function-icon">🎨</view>
+        <uni-icons class="function-icon" type="compose" size="28" color="#8ab4ff" />
         <text class="function-text">生成3D模型</text>
       </view>
       <view class="function-item" @click="goToModelList">
-        <view class="function-icon">📦</view>
+        <uni-icons class="function-icon" type="list" size="28" color="#8ab4ff" />
         <text class="function-text">我的模型</text>
       </view>
       <view class="function-item" @click="goToPoints">
-        <view class="function-icon">💰</view>
+        <uni-icons class="function-icon" type="wallet" size="28" color="#8ab4ff" />
         <text class="function-text">积分中心</text>
       </view>
       <view class="function-item" @click="goToProfile">
-        <view class="function-icon">👤</view>
+        <uni-icons class="function-icon" type="person" size="28" color="#8ab4ff" />
         <text class="function-text">个人中心</text>
       </view>
     </view>
@@ -33,17 +33,15 @@
         <text>热门模型</text>
         <text class="more" @click="goToModelList">更多 ></text>
       </view>
-      <scroll-view class="model-scroll" scroll-x="true">
-        <view class="model-list">
-          <view class="model-item" v-for="model in hotModels" :key="model.id" @click="goToModelDetail(model.id)">
-            <image :src="model.original_image" class="model-image" mode="aspectFill"></image>
-            <view class="model-info">
-              <text class="model-name">{{ model.name }}</text>
-              <text class="model-type">{{ getModelTypeText(model.model_type) }}</text>
-            </view>
+      <view class="model-grid">
+        <view class="model-item" v-for="model in hotModels" :key="model.id" @click="goToModelDetail(model.id)">
+          <image :src="model.original_image" class="model-image" mode="aspectFill"></image>
+          <view class="model-info">
+            <text class="model-name">{{ model.name }}</text>
+            <text class="model-type">{{ getModelTypeText(model.model_type) }}</text>
           </view>
         </view>
-      </scroll-view>
+      </view>
     </view>
     
     <!-- 积分余额 -->
@@ -108,7 +106,7 @@ export default {
           {
             id: 1,
             name: '可爱角色',
-            original_image: '/static/model1.jpg',
+            original_image: 'https://cdn-3d-prod.hunyuan.tencent.com/public/3d/20250702/goodcase/31_render.png?imageMogr2/thumbnail/320x/quality/80/strip/format/webp',
             model_type: 'character'
           },
           {
@@ -206,9 +204,16 @@ export default {
   padding: 0;
 }
 
+// 桌面端页面居中与最大宽度
+.page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
 // 顶部横幅区域
 .banner {
-  height: 460rpx;
+  height: 520rpx;
   margin-bottom: 24rpx;
 }
 
@@ -236,10 +241,7 @@ export default {
   padding: 24rpx 0;
 }
 
-.function-icon {
-  font-size: 60rpx;
-  margin-bottom: 10rpx;
-}
+.function-icon { margin-bottom: 10rpx; }
 
 .function-text {
   font-size: 24rpx;
@@ -267,28 +269,17 @@ export default {
   color: #8ab4ff;
 }
 
-.model-scroll {
-  white-space: nowrap;
-}
-
-.model-list {
-  display: flex;
-  padding: 0 24rpx 24rpx;
-}
+.model-grid { padding: 0 24rpx 24rpx; display: flex; flex-wrap: wrap; gap: 20rpx; }
 
 .model-item {
-  width: 220rpx;
-  margin-right: 20rpx;
+  width: calc((100% - 60rpx) / 4);
   background: #141821;
   border-radius: 16rpx;
   overflow: hidden;
   border: 1rpx solid rgba(255,255,255,0.06);
 }
 
-.model-image {
-  width: 100%;
-  height: 160rpx;
-}
+.model-image { width: 100%; height: 220rpx; }
 
 .model-info {
   padding: 18rpx;
