@@ -1,0 +1,34 @@
+{
+  "name": "qiniu3d-frontend",
+  "version": "1.0.0",
+  "description": "七牛3D前端项目",
+  "main": "main.js",
+  "scripts": {
+    "dev": "npm run dev:h5",
+    "dev:h5": "uni build --platform h5 --mode development --watch",
+    "dev:mp-weixin": "uni build --platform mp-weixin --mode development --watch",
+    "build": "npm run build:h5",
+    "build:h5": "uni build --platform h5 --mode production",
+    "build:mp-weixin": "uni build --platform mp-weixin --mode production"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "^3.0.0",
+    "@dcloudio/uni-ui": "^1.4.0",
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "^3.0.0",
+    "@dcloudio/uni-automator": "^3.0.0",
+    "@dcloudio/uni-cli-shared": "^3.0.0",
+    "@dcloudio/vite-plugin-uni": "^3.0.0",
+    "vite": "^4.0.0"
+  },
+  "keywords": [
+    "uni-app",
+    "vue3",
+    "3d",
+    "ai"
+  ],
+  "author": "七牛3D团队",
+  "license": "MIT"
+}
