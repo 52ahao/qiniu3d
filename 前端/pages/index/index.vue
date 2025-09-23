@@ -277,9 +277,10 @@ export default {
   border-radius: 16rpx;
   overflow: hidden;
   border: 1rpx solid rgba(255,255,255,0.06);
+  cursor: pointer;
 }
 
-.model-image { width: 100%; height: 220rpx; }
+.model-image { width: 100%; height: auto; aspect-ratio: 1 / 1; }
 
 .model-info {
   padding: 18rpx;
