@@ -4,9 +4,10 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "七牛3D",
-				"enablePullDownRefresh": true
+				"enablePullDownRefresh": true,
+				"navigationStyle": "custom"
 			},
-			"navigationStyle": "custom"
+			
 		},
 		{
 			"path": "pages/login/login",
@@ -65,5 +66,14 @@
 		// "app-plus": {
 		// 	"background": "#efeff4"
 		// }
+	},
+	"tabBar": {
+		"color": "#9aa4b2",
+		"selectedColor": "#2b74ff",
+		"backgroundColor": "#0f1115",
+		"borderStyle": "black",
+		"height": "50px",
+		"list": [
+		]
 	}
 }
