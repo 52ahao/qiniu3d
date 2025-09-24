@@ -149,10 +149,10 @@ export default {
       this._materialSnapshot = materials.map(m => ({
         m,
         baseColorFactor: m?.pbrMetallicRoughness?.baseColorFactor?.slice?.() || [1,1,1,1],
-        baseColorTexture: m?.pbrMetallicRoughness?.baseColorTexture || null,
+        baseColorTexture: m?.pbrMetallicRoughness?.baseColorTexture?.texture || null,
         metallicFactor: m?.pbrMetallicRoughness?.metallicFactor ?? 0,
         roughnessFactor: m?.pbrMetallicRoughness?.roughnessFactor ?? 1,
-        normalTexture: m?.normalTexture || null
+        normalTexture: m?.normalTexture?.texture || null
       }))
     },
     restoreMaterials() {
@@ -162,10 +162,14 @@ export default {
           const pbr = s.m.pbrMetallicRoughness
           if (!pbr) return
           if (pbr.setBaseColorFactor) pbr.setBaseColorFactor(s.baseColorFactor)
-          pbr.baseColorTexture = s.baseColorTexture
-          pbr.metallicFactor = s.metallicFactor
-          pbr.roughnessFactor = s.roughnessFactor
-          s.m.normalTexture = s.normalTexture
+          if (pbr.setBaseColorTexture) pbr.setBaseColorTexture(s.baseColorTexture)
+          if (pbr.setMetallicFactor) pbr.setMetallicFactor(s.metallicFactor)
+          if (pbr.setRoughnessFactor) pbr.setRoughnessFactor(s.roughnessFactor)
+          if (s.m.normalTexture && s.m.normalTexture.setTexture) {
+            s.m.normalTexture.setTexture(s.normalTexture)
+          } else if (s.m.setNormalTexture) {
+            s.m.setNormalTexture(s.normalTexture)
+          }
         } catch (e) {}
       })
     },
@@ -183,10 +187,10 @@ export default {
           const pbr = m.pbrMetallicRoughness
           if (!pbr) return
           if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
-          pbr.baseColorTexture = null
-          pbr.metallicFactor = 0
-          pbr.roughnessFactor = 0.8
-          m.normalTexture = null
+          if (pbr.setBaseColorTexture) pbr.setBaseColorTexture(null)
+          if (pbr.setMetallicFactor) pbr.setMetallicFactor(0)
+          if (pbr.setRoughnessFactor) pbr.setRoughnessFactor(0.8)
+          if (m.normalTexture && m.normalTexture.setTexture) m.normalTexture.setTexture(null)
         })
       } else if (mode === 'albedo') {
         materials.forEach(m => {
@@ -194,19 +198,19 @@ export default {
           if (!pbr) return
           // 保留底色纹理，只看颜色
           if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
-          pbr.metallicFactor = 0
-          pbr.roughnessFactor = 1
-          m.normalTexture = null
+          if (pbr.setMetallicFactor) pbr.setMetallicFactor(0)
+          if (pbr.setRoughnessFactor) pbr.setRoughnessFactor(1)
+          if (m.normalTexture && m.normalTexture.setTexture) m.normalTexture.setTexture(null)
         })
       } else if (mode === 'normal') {
         materials.forEach(m => {
           const pbr = m.pbrMetallicRoughness
           if (!pbr) return
           // 移除底色，仅通过法线产生阴影效果
-          pbr.baseColorTexture = null
+          if (pbr.setBaseColorTexture) pbr.setBaseColorTexture(null)
           if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
-          pbr.metallicFactor = 0
-          pbr.roughnessFactor = 1
+          if (pbr.setMetallicFactor) pbr.setMetallicFactor(0)
+          if (pbr.setRoughnessFactor) pbr.setRoughnessFactor(1)
           // 保留原 normalTexture（快照里已恢复）
         })
       }
