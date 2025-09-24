@@ -35,21 +35,20 @@
             <input
               class="input"
               type="text"
-              placeholder="请输入邮箱地址"
+              placeholder="请输入用户名或邮箱"
               :placeholder-style="'color:#9aa4b2'"
               v-model="form.username"
             />
           </view>
 
-          <view class="form-item code-row">
+          <view class="form-item">
             <input
               class="input"
-              type="text"
-              placeholder="请输入邮箱验证码"
+              type="password"
+              placeholder="请输入密码"
               :placeholder-style="'color:#9aa4b2'"
               v-model="form.password"
             />
-            <button class="code-btn" @click="getEmailCode">获取验证码</button>
           </view>
 
           <view class="agreements">
@@ -110,9 +109,7 @@ export default {
         uni.showToast({ title: '功能开发中', icon: 'none' })
       }
     },
-    getEmailCode() {
-      uni.showToast({ title: '验证码已发送(示例)', icon: 'none' })
-    },
+    
     openProtocol(type) {
       const title = type === 'privacy' ? '隐私协议' : '用户服务协议'
       uni.showModal({ title, content: '协议内容示例', showCancel: false })

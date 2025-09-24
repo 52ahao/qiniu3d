@@ -9,13 +9,13 @@ return [
     
     // API配置
     'api' => [
-        'base_url' => 'http://localhost/qiniu3d/后端/api/',
+        'base_url' => 'http://localhost:3344/api/',
         'timeout' => 30,
     ],
     
     // 文件上传配置
     'upload' => [
-        'max_size' => 10 * 1024 * 1024, // 10MB
+        'max_size' => 100 * 1024 * 1024, // 10MB
         'allowed_types' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         'upload_path' => '../uploads/',
     ],

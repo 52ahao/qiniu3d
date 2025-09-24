@@ -1,7 +1,7 @@
 /**
  * API请求工具类
  */
-const BASE_URL = 'http://localhost/qiniu3d/后端/api/'
+const BASE_URL = 'http://localhost:3344/api/'
 
 class ApiService {
   constructor() {
@@ -183,6 +183,11 @@ export const modelApi = {
   // 删除模型
   delete(id) {
     return api.delete(`model/detail.php?id=${id}`)
+  },
+
+  // 上传图片（供生成页使用）
+  uploadImage(filePath) {
+    return api.upload('upload/image.php', filePath)
   }
 }
 
