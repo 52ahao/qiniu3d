@@ -49,7 +49,7 @@ if (!in_array($input['model_type'], $allowedTypes)) {
 
 try {
     $db = Database::getInstance();
-    $config = require_once '../../config/config.php';
+    $config = require __DIR__ . '/../../config/config.php';
     
     // 检查用户积分
     $user = $db->fetch("SELECT points FROM users WHERE id = ?", [$payload['user_id']]);
@@ -57,7 +57,9 @@ try {
         Response::error('用户不存在', 404);
     }
     
-    $cost = $config['points']['model_generation_cost'];
+    $cost = isset($config['points']['model_generation_cost'])
+        ? (int)$config['points']['model_generation_cost']
+        : 10;
     if ($user['points'] < $cost) {
         Response::error('积分不足，需要' . $cost . '积分', 400);
     }
@@ -91,7 +93,7 @@ try {
     
     // 这里应该调用第三方API生成3D模型
     // 由于是示例，我们模拟异步处理
-    $this->processModelGeneration($modelId, $input['image_url'], $input['model_type']);
+    processModelGeneration($modelId, $input['image_url'], $input['model_type']);
     
     Response::success([
         'model_id' => $modelId,
@@ -111,7 +113,7 @@ function processModelGeneration($modelId, $imageUrl, $modelType) {
     // 示例代码，实际需要根据API文档实现
     
     // 模拟异步处理
-    $config = require_once '../../config/config.php';
+    $config = require __DIR__ . '/../../config/config.php';
     
     // 这里应该实现真实的API调用
     // $result = callHunyuanAPI($imageUrl, $modelType);
