@@ -31,13 +31,15 @@
           </model-viewer>
 
           <!-- 底部材质/变体切换条 -->
-          <view class="variants-bar" v-if="variants.length || colorPresets.length">
+          <view class="variants-bar" v-if="variants.length || true">
             <scroll-view class="variants-scroll" scroll-x>
               <view v-for="item in variants" :key="item" class="variant-chip" :class="{active: selectedVariant===item}" @click="switchVariant(item)">
                 <text>{{ item }}</text>
               </view>
-              <view v-if="!variants.length" class="colors">
-                <view v-for="c in colorPresets" :key="c" class="color-dot" :style="{background:c, borderColor: selectedColor===c ? '#fff' : 'rgba(255,255,255,0.3)'}" @click="applyColor(c)"></view>
+              <view v-if="!variants.length" class="mode-buttons">
+                <view class="variant-chip" :class="{active: viewMode==='white'}" @click="setViewMode('white')"><text>白模</text></view>
+                <view class="variant-chip" :class="{active: viewMode==='albedo'}" @click="setViewMode('albedo')"><text>反照率</text></view>
+                <view class="variant-chip" :class="{active: viewMode==='normal'}" @click="setViewMode('normal')"><text>法线</text></view>
               </view>
             </scroll-view>
           </view>
@@ -75,8 +77,8 @@ export default {
       loading: true,
       variants: [],
       selectedVariant: '',
-      colorPresets: ['#bfbfbf', '#8a2be2', '#1e90ff', '#ff69b4', '#ffd700', '#00c853'],
-      selectedColor: ''
+      viewMode: 'albedo',
+      _materialSnapshot: null
     }
   },
   onLoad(query) {
@@ -125,6 +127,10 @@ export default {
         if (this.variants.length) {
           this.selectedVariant = this.variants[0]
           mv.variantName = this.selectedVariant
+        } else {
+          // 无变体时，默认进入反照率模式
+          this.snapshotMaterials()
+          this.setViewMode('albedo')
         }
       } catch (e) {
         // 忽略
@@ -136,24 +142,73 @@ export default {
       this.selectedVariant = name
       try { mv.variantName = name } catch (e) {}
     },
-    async applyColor(color) {
-      this.selectedColor = color
+    snapshotMaterials() {
       const mv = this.$refs.mv
-      if (!mv || this.variants.length) return // 如果有variants则不做颜色覆盖
-      try {
-        await mv.updateComplete
-        const materials = mv.model && mv.model.materials ? mv.model.materials : []
-        const hex = color.replace('#','')
-        const r = parseInt(hex.substring(0,2), 16) / 255
-        const g = parseInt(hex.substring(2,4), 16) / 255
-        const b = parseInt(hex.substring(4,6), 16) / 255
+      if (!mv) return
+      const materials = mv.model && mv.model.materials ? mv.model.materials : []
+      this._materialSnapshot = materials.map(m => ({
+        m,
+        baseColorFactor: m?.pbrMetallicRoughness?.baseColorFactor?.slice?.() || [1,1,1,1],
+        baseColorTexture: m?.pbrMetallicRoughness?.baseColorTexture || null,
+        metallicFactor: m?.pbrMetallicRoughness?.metallicFactor ?? 0,
+        roughnessFactor: m?.pbrMetallicRoughness?.roughnessFactor ?? 1,
+        normalTexture: m?.normalTexture || null
+      }))
+    },
+    restoreMaterials() {
+      if (!this._materialSnapshot) return
+      this._materialSnapshot.forEach(s => {
+        try {
+          const pbr = s.m.pbrMetallicRoughness
+          if (!pbr) return
+          if (pbr.setBaseColorFactor) pbr.setBaseColorFactor(s.baseColorFactor)
+          pbr.baseColorTexture = s.baseColorTexture
+          pbr.metallicFactor = s.metallicFactor
+          pbr.roughnessFactor = s.roughnessFactor
+          s.m.normalTexture = s.normalTexture
+        } catch (e) {}
+      })
+    },
+    async setViewMode(mode) {
+      this.viewMode = mode
+      const mv = this.$refs.mv
+      if (!mv || this.variants.length) return
+      await mv.updateComplete
+      if (!this._materialSnapshot) this.snapshotMaterials()
+      // 先恢复，再施加模式
+      this.restoreMaterials()
+      const materials = mv.model && mv.model.materials ? mv.model.materials : []
+      if (mode === 'white') {
         materials.forEach(m => {
-          if (m && m.pbrMetallicRoughness && m.pbrMetallicRoughness.setBaseColorFactor) {
-            m.pbrMetallicRoughness.setBaseColorFactor([r,g,b,1])
-          }
+          const pbr = m.pbrMetallicRoughness
+          if (!pbr) return
+          if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
+          pbr.baseColorTexture = null
+          pbr.metallicFactor = 0
+          pbr.roughnessFactor = 0.8
+          m.normalTexture = null
         })
-      } catch (e) {
-        // 忽略
+      } else if (mode === 'albedo') {
+        materials.forEach(m => {
+          const pbr = m.pbrMetallicRoughness
+          if (!pbr) return
+          // 保留底色纹理，只看颜色
+          if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
+          pbr.metallicFactor = 0
+          pbr.roughnessFactor = 1
+          m.normalTexture = null
+        })
+      } else if (mode === 'normal') {
+        materials.forEach(m => {
+          const pbr = m.pbrMetallicRoughness
+          if (!pbr) return
+          // 移除底色，仅通过法线产生阴影效果
+          pbr.baseColorTexture = null
+          if (pbr.setBaseColorFactor) pbr.setBaseColorFactor([1,1,1,1])
+          pbr.metallicFactor = 0
+          pbr.roughnessFactor = 1
+          // 保留原 normalTexture（快照里已恢复）
+        })
       }
     },
     downloadModel() {
@@ -189,8 +244,7 @@ export default {
 .variants-scroll { white-space: nowrap; display: flex; gap: 12rpx; }
 .variant-chip { display: inline-flex; padding: 10rpx 16rpx; border-radius: 999rpx; background: rgba(255,255,255,0.06); color: #e6e8eb; border: 1rpx solid transparent; }
 .variant-chip.active { border-color: #8ab4ff; background: rgba(138,180,255,0.15); }
-.colors { display: inline-flex; gap: 12rpx; align-items: center; padding: 0 8rpx; }
-.color-dot { width: 36rpx; height: 36rpx; border-radius: 50%; border: 2rpx solid rgba(255,255,255,0.3); }
+.mode-buttons { display: inline-flex; gap: 12rpx; align-items: center; padding: 0 8rpx; }
 
 .info { display: flex; flex-direction: column; gap: 12rpx; }
 .name { font-size: 34rpx; font-weight: 600; }
