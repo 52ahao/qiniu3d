@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>购买点数 - AI 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>body{background:#0b0f1a}</style>
+</head>
+<body class="text-slate-200">
+    <div class="max-w-4xl mx-auto p-4 grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h1 class="text-lg font-medium mb-4">选择点数包</h1>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <button class="bg-slate-800 hover:bg-slate-700 rounded p-3 text-left">
+                        <div class="font-medium">200 点</div>
+                        <div class="text-slate-400">¥19</div>
+                    </button>
+                    <button class="bg-slate-800 hover:bg-slate-700 rounded p-3 text-left">
+                        <div class="font-medium">500 点</div>
+                        <div class="text-slate-400">¥39</div>
+                    </button>
+                    <button class="bg-slate-800 hover:bg-slate-700 rounded p-3 text-left">
+                        <div class="font-medium">1200 点</div>
+                        <div class="text-slate-400">¥89</div>
+                    </button>
+                    <button class="bg-slate-800 hover:bg-slate-700 rounded p-3 text-left">
+                        <div class="font-medium">3000 点</div>
+                        <div class="text-slate-400">¥199</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h2 class="text-base font-medium mb-3">支付方式</h2>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <label class="flex gap-2 items-center bg-slate-800 hover:bg-slate-700 rounded p-3">
+                        <input type="radio" name="pay" class="accent-indigo-600" checked />
+                        <span>支付宝</span>
+                    </label>
+                    <label class="flex gap-2 items-center bg-slate-800 hover:bg-slate-700 rounded p-3">
+                        <input type="radio" name="pay" class="accent-indigo-600" />
+                        <span>微信支付</span>
+                    </label>
+                </div>
+                <button class="mt-4 bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded">立即支付</button>
+            </div>
+        </div>
+        <aside class="space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h3 class="text-sm font-medium mb-2">订单摘要</h3>
+                <div class="text-sm space-y-2">
+                    <div class="flex justify-between"><span>商品</span><span>500 点</span></div>
+                    <div class="flex justify-between"><span>金额</span><span>¥39</span></div>
+                    <div class="flex justify-between"><span>优惠</span><span>- ¥0</span></div>
+                    <div class="h-px bg-slate-800"></div>
+                    <div class="flex justify-between font-medium"><span>应付</span><span>¥39</span></div>
+                </div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm">
+                <div class="flex items-center gap-2 text-slate-400"><i class="fa-solid fa-lock"></i><span>支付已加密保护</span></div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模型详情 - AI 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>body{background:#0b0f1a}</style>
+</head>
+<body class="text-slate-200">
+    <div class="max-w-7xl mx-auto p-4 grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4">
+            <model-viewer src="../../houduan/uploads/3d/15.glb" poster="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1200&auto=format&fit=crop" camera-controls auto-rotate disable-zoom class="w-full h-[460px] bg-slate-900 border border-slate-800 rounded-xl"></model-viewer>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h2 class="text-base font-medium mb-3">描述</h2>
+                <p class="text-sm text-slate-400">科幻无人机三维模型，包含法线贴图与金属度纹理，适合实时渲染与游戏引擎。</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h2 class="text-base font-medium mb-3">预览截图</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <img class="h-28 w-full object-cover rounded-lg border border-slate-800" src="https://images.unsplash.com/photo-1527443224154-c4f2a1cb7c14?q=80&w=800&auto=format&fit=crop" alt="shot1" />
+                    <img class="h-28 w-full object-cover rounded-lg border border-slate-800" src="https://images.unsplash.com/photo-1531030874896-fdef6826f2f7?q=80&w=800&auto=format&fit=crop" alt="shot2" />
+                    <img class="h-28 w-full object-cover rounded-lg border border-slate-800" src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=800&auto=format&fit=crop" alt="shot3" />
+                </div>
+            </div>
+        </div>
+        <aside class="space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1545996124-0501ebae84d0?q=80&w=96&auto=format&fit=crop" class="w-10 h-10 rounded-full border border-slate-700" />
+                    <div>
+                        <div class="text-sm font-medium">Aiden Studio</div>
+                        <div class="text-xs text-slate-400">2.4k 关注者</div>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+                    <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-2 rounded">下载 GLB</button>
+                    <button class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded">收藏</button>
+                </div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm">
+                <div class="flex items-center justify-between py-2 border-b border-slate-800"><span>多边形</span><span class="text-slate-300">24,316</span></div>
+                <div class="flex items-center justify-between py-2 border-b border-slate-800"><span>材质</span><span class="text-slate-300">PBR（金属度/粗糙度）</span></div>
+                <div class="flex items-center justify-between py-2"><span>许可</span><span class="text-slate-300">可商用</span></div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                <h3 class="text-sm font-medium mb-3">相关推荐</h3>
+                <div class="space-y-3">
+                    <a class="flex items-center gap-3" href="model-detail.html" target="_parent">
+                        <img src="https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=400&auto=format&fit=crop" class="w-16 h-12 object-cover rounded border border-slate-800" />
+                        <div class="text-sm">未来载具</div>
+                    </a>
+                    <a class="flex items-center gap-3" href="model-detail.html" target="_parent">
+                        <img src="https://images.unsplash.com/photo-1579165466741-7f35e4755662?q=80&w=400&auto=format&fit=crop" class="w-16 h-12 object-cover rounded border border-slate-800" />
+                        <div class="text-sm">机械手臂</div>
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>
+

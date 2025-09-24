@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模型广场 - AI 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>body{background:#0b0f1a}</style>
+</head>
+<body class="text-slate-200">
+    <div class="max-w-7xl mx-auto p-4">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-lg font-medium">模型广场</h1>
+            <div class="flex items-center gap-2 text-xs">
+                <button class="px-3 py-1 bg-slate-900 border border-slate-800 rounded">最新</button>
+                <button class="px-3 py-1 bg-slate-900 border border-slate-800 rounded">最热</button>
+                <button class="px-3 py-1 bg-slate-900 border border-slate-800 rounded">收藏最多</button>
+            </div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- 12 张真实图片卡片 -->
+            <template id="card-template">
+                <a class="block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600" href="model-detail.html" target="_parent">
+                    <img class="h-40 w-full object-cover" />
+                    <div class="p-3 text-sm">
+                        <div class="font-medium">通用模型</div>
+                        <div class="mt-1 flex items-center justify-between text-xs text-slate-400">
+                            <span><i class="fa-solid fa-cubes"></i> GLB</span>
+                            <span><i class="fa-regular fa-star"></i> 4.8</span>
+                        </div>
+                    </div>
+                </a>
+            </template>
+        </div>
+    </div>
+
+    <script>
+        const urls = [
+            'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1600267204025-08f7d2533c4b?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1527443224154-c4f2a1cb7c14?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1531030874896-fdef6826f2f7?q=80&w=1200&auto=format&fit=crop'
+        ];
+        const grid = document.querySelector('.grid');
+        const tpl = document.getElementById('card-template');
+        urls.forEach(u => {
+            const node = tpl.content.cloneNode(true);
+            node.querySelector('img').src = u;
+            grid.appendChild(node);
+        });
+    </script>
+</body>
+</html>
+

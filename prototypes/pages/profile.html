@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人中心 - AI 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>body{background:#0b0f1a}</style>
+</head>
+<body class="text-slate-200">
+    <div class="max-w-7xl mx-auto p-4 space-y-6">
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <img src="https://images.unsplash.com/photo-1545996124-0501ebae84d0?q=80&w=96&auto=format&fit=crop" class="w-16 h-16 rounded-full border border-slate-700" />
+                <div>
+                    <div class="text-base font-medium">Aiden Studio</div>
+                    <div class="text-xs text-slate-400">aiden@example.com</div>
+                    <div class="text-xs text-slate-400">粉丝 2.4k • 作品 36</div>
+                </div>
+            </div>
+            <a href="settings.html" target="_parent" class="text-xs px-3 py-2 border border-slate-700 rounded">编辑资料</a>
+        </section>
+
+        <section class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-medium">我的作品</h2>
+                    <a href="generate.html" target="_parent" class="text-xs px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded">新建生成</a>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop" class="h-40 w-full object-cover" />
+                        <div class="p-3 text-sm flex items-center justify-between">
+                            <div>无人机 v2</div>
+                            <a class="text-xs px-2 py-1 border border-slate-700 rounded" href="model-detail.html" target="_parent">查看</a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1531030874896-fdef6826f2f7?q=80&w=1200&auto=format&fit=crop" class="h-40 w-full object-cover" />
+                        <div class="p-3 text-sm flex items-center justify-between">
+                            <div>机械臂 v1</div>
+                            <a class="text-xs px-2 py-1 border border-slate-700 rounded" href="model-detail.html" target="_parent">查看</a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1527443224154-c4f2a1cb7c14?q=80&w=1200&auto=format&fit=crop" class="h-40 w-full object-cover" />
+                        <div class="p-3 text-sm flex items-center justify-between">
+                            <div>载具概念 v3</div>
+                            <a class="text-xs px-2 py-1 border border-slate-700 rounded" href="model-detail.html" target="_parent">查看</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <aside class="space-y-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <h3 class="text-sm font-medium mb-2">账户统计</h3>
+                    <div class="grid grid-cols-3 gap-3 text-center text-sm">
+                        <div class="bg-slate-950 border border-slate-800 rounded p-3">
+                            <div class="text-2xl font-semibold">36</div>
+                            <div class="text-xs text-slate-400">作品</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded p-3">
+                            <div class="text-2xl font-semibold">2.4k</div>
+                            <div class="text-xs text-slate-400">粉丝</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded p-3">
+                            <div class="text-2xl font-semibold">1,240</div>
+                            <div class="text-xs text-slate-400">点数</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                    <h3 class="text-sm font-medium mb-2">最近活动</h3>
+                    <ul class="text-sm space-y-2 text-slate-300">
+                        <li>下载了 无人机 v2</li>
+                        <li>完成生成 机械臂 v1</li>
+                        <li>收藏了 载具概念 v3</li>
+                    </ul>
+                </div>
+            </aside>
+        </section>
+    </div>
+</body>
+</html>
+
