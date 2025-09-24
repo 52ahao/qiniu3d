@@ -5,8 +5,8 @@
 return [
     'host' => 'localhost',
     'dbname' => 'qiniu3d',
-    'username' => 'root',
-    'password' => '',
+    'username' => 'qiniu3d',
+    'password' => 'qiniu3d',
     'charset' => 'utf8mb4',
     'options' => [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
