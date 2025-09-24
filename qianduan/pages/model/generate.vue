@@ -248,7 +248,7 @@ export default {
         
         // 跳转到模型列表
         setTimeout(() => {
-          uni.switchTab({
+          uni.navigateTo({
             url: '/pages/model/list'
           })
         }, 1500)

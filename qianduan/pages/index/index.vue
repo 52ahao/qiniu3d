@@ -158,7 +158,7 @@ export default {
         })
         return
       }
-      uni.switchTab({
+      uni.navigateTo({
         url: '/pages/model/list'
       })
     },
@@ -184,7 +184,7 @@ export default {
         })
         return
       }
-      uni.switchTab({
+      uni.navigateTo({
         url: '/pages/profile/profile'
       })
     },

@@ -12,15 +12,15 @@
 
       <view class="dialog-right">
         <view class="tabs">
-          <view class="tab" :class="{ active: activeTab==='wechat' }" @click="switchTab('wechat')">
+          <view class="tab" :class="{ active: activeTab==='wechat' }" @click="navigateTo('wechat')">
             <uni-icons type="weixin" size="20" color="#2bb908"></uni-icons>
 
           </view>
-          <view class="tab" :class="{ active: activeTab==='qq' }" @click="switchTab('qq')">
+          <view class="tab" :class="{ active: activeTab==='qq' }" @click="navigateTo('qq')">
             <uni-icons type="qq" size="20" color="#12b7f5"></uni-icons>
 
           </view>
-          <view class="tab" :class="{ active: activeTab==='email' }" @click="switchTab('email')">
+          <view class="tab" :class="{ active: activeTab==='email' }" @click="navigateTo('email')">
             <uni-icons type="email" size="20" color="#2b74ff"></uni-icons>
 
           </view>
@@ -103,7 +103,7 @@ export default {
   
   methods: {
     ...mapActions(['login']),
-    switchTab(tab) {
+    navigateTo(tab) {
       this.activeTab = tab
       if (tab !== 'email') {
         uni.showToast({ title: '功能开发中', icon: 'none' })
@@ -152,7 +152,7 @@ export default {
           if (pages.length > 1) {
             uni.navigateBack()
           } else {
-            uni.switchTab({
+            uni.navigateTo({
               url: '/pages/index/index'
             })
           }

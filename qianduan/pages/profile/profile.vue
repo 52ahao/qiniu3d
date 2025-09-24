@@ -162,7 +162,7 @@ export default {
     
     // 跳转到模型列表
     goToModelList() {
-      uni.switchTab({
+      uni.navigateTo({
         url: '/pages/model/list'
       })
     },
@@ -220,7 +220,7 @@ export default {
               icon: 'success'
             })
             setTimeout(() => {
-              uni.switchTab({
+              uni.navigateTo({
                 url: '/pages/index/index'
               })
             }, 1500)

@@ -36,7 +36,7 @@ if (!$payload) {
 }
 
 try {
-    $config = require_once '../../config/config.php';
+    $config = require __DIR__ . '/../../config/config.php';
     
     // 将 php.ini 中的大小单位（如 2M/512K）转为字节
     $toBytes = function($val) {
@@ -82,10 +82,13 @@ try {
     }
 
     $file = $_FILES['image'];
-    $uploadConfig = $config['upload'];
+    $uploadConfig = isset($config['upload']) ? $config['upload'] : [];
+    $maxSize = isset($uploadConfig['max_size']) && is_numeric($uploadConfig['max_size'])
+        ? (int)$uploadConfig['max_size']
+        : 10 * 1024 * 1024; // 合理的保底值 10MB
     
     // 检查文件大小（按业务配置）
-    if ($file['size'] > $uploadConfig['max_size']) {
+    if ($file['size'] > $maxSize) {
         $phpUploadMax = $toBytes(ini_get('upload_max_filesize'));
         $phpPostMax = $toBytes(ini_get('post_max_size'));
         Response::error(
@@ -93,7 +96,7 @@ try {
             400,
             [
                 'file_size' => $file['size'],
-                'max_size' => $uploadConfig['max_size'],
+                'max_size' => $maxSize,
                 'php_upload_max_filesize' => $phpUploadMax,
                 'php_post_max_size' => $phpPostMax
             ]

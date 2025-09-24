@@ -130,7 +130,7 @@ export default {
         
         // 跳转到首页
         setTimeout(() => {
-          uni.switchTab({
+          uni.navigateTo({
             url: '/pages/index/index'
           })
         }, 1500)
