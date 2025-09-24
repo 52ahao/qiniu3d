@@ -5,6 +5,8 @@ import App from './App'
 import store from './store/index.js'
 
 Vue.config.productionTip = false
+// 允许使用自定义元素 model-viewer（H5 预览 3D 模型）
+Vue.config.ignoredElements = ['model-viewer']
 
 App.mpType = 'app'
 

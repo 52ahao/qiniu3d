@@ -38,7 +38,7 @@ return [
     
     // JWT配置
     'jwt' => [
-        'secret' => 'your-secret-key-here',
+        'secret' => '651845df4nbs5bfdv',
         'expire' => 7 * 24 * 3600, // 7天
     ],
 ];
