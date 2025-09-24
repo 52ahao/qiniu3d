@@ -31,7 +31,7 @@
           </model-viewer>
 
           <!-- 底部材质/变体切换条 -->
-          <view class="variants-bar" v-if="variants.length || true">
+          <!-- <view class="variants-bar" v-if="variants.length || true">
             <scroll-view class="variants-scroll" scroll-x>
               <view v-for="item in variants" :key="item" class="variant-chip" :class="{active: selectedVariant===item}" @click="switchVariant(item)">
                 <text>{{ item }}</text>
@@ -42,7 +42,7 @@
                 <view class="variant-chip" :class="{active: viewMode==='normal'}" @click="setViewMode('normal')"><text>法线</text></view>
               </view>
             </scroll-view>
-          </view>
+          </view> -->
         </view>
       </view>
 
@@ -117,16 +117,19 @@ export default {
       }
       return base + path
     },
-    onViewerLoad() {
+    async onViewerLoad() {
       try {
         const mv = this.$refs.mv
         if (!mv) return
+        // 确保模型与 scene-graph 功能已就绪
+        await mv.updateComplete
+        await this.$nextTick()
         // 读取 glTF 变体列表（如果模型包含 KHR_materials_variants）
         const list = (mv.availableVariants || []).slice()
         this.variants = list
         if (this.variants.length) {
           this.selectedVariant = this.variants[0]
-          mv.variantName = this.selectedVariant
+          try { mv.variantName = this.selectedVariant } catch (e) {}
         } else {
           // 无变体时，默认进入反照率模式
           this.snapshotMaterials()
@@ -134,6 +137,18 @@ export default {
         }
       } catch (e) {
         // 忽略
+      }
+    },
+    getMaterials() {
+      const mv = this.$refs.mv
+      if (!mv) return []
+      const model = mv.model || mv.scene?.model || null
+      const materials = model && model.materials ? model.materials : []
+      // 统一转成普通数组，避免不同实现导致的不可直接迭代问题
+      try {
+        return Array.isArray(materials) ? materials : Array.from(materials)
+      } catch (e) {
+        return materials || []
       }
     },
     switchVariant(name) {
@@ -145,7 +160,7 @@ export default {
     snapshotMaterials() {
       const mv = this.$refs.mv
       if (!mv) return
-      const materials = mv.model && mv.model.materials ? mv.model.materials : []
+      const materials = this.getMaterials()
       this._materialSnapshot = materials.map(m => ({
         m,
         baseColorFactor: m?.pbrMetallicRoughness?.baseColorFactor?.slice?.() || [1,1,1,1],
@@ -181,7 +196,11 @@ export default {
       if (!this._materialSnapshot) this.snapshotMaterials()
       // 先恢复，再施加模式
       this.restoreMaterials()
-      const materials = mv.model && mv.model.materials ? mv.model.materials : []
+      const materials = this.getMaterials()
+      if (!materials || !materials.length) {
+        console.warn('[viewer] 当前模型无可编辑材质，模式切换被跳过')
+        return
+      }
       if (mode === 'white') {
         materials.forEach(m => {
           const pbr = m.pbrMetallicRoughness
@@ -230,21 +249,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container { padding: 16rpx; }
+.container { padding: 0; min-height: 100vh; }
 
-// 页面两栏布局
-.viewer-page { display: flex; gap: 16rpx; }
-.viewer-wrap { flex: 1; min-height: 600rpx; }
-.sidebar { width: 380rpx; display: flex; flex-direction: column; gap: 16rpx; }
+// 全屏模型展示，其他组件覆盖在上层
+.viewer-page { position: relative; }
+.viewer-wrap { position: static; }
+.sidebar { position: fixed; right: 16rpx; top: 16rpx; width: 380rpx; display: flex; flex-direction: column; gap: 16rpx; z-index: 2; }
 
 .card { background: #0f1115; border-radius: 12rpx; padding: 20rpx; border: 1rpx solid rgba(255,255,255,0.06); color: #e6e8eb; }
 .placeholder { display: flex; flex-direction: column; align-items: center; }
 .cover { width: 100%; height: 360rpx; border-radius: 8rpx; margin-bottom: 12rpx; }
 
-.viewer-card { position: relative; background: #0b0d12; border-radius: 12rpx; overflow: hidden; border: 1rpx solid rgba(255,255,255,0.06); }
-.model-viewer { width: 100%; height: 720rpx; background: linear-gradient(#0b0d12, #141821); }
+.viewer-card { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: #0b0d12; border-radius: 0; overflow: hidden; border: none; z-index: 0; }
+.model-viewer { width: 100vw; height: 100vh; background: linear-gradient(#0b0d12, #141821); }
 
-.variants-bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 12rpx; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(10,12,16,0.9) 40%, rgba(10,12,16,0.95) 100%); }
+.variants-bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 12rpx; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(10,12,16,0.9) 40%, rgba(10,12,16,0.95) 100%); z-index: 1; }
 .variants-scroll { white-space: nowrap; display: flex; gap: 12rpx; }
 .variant-chip { display: inline-flex; padding: 10rpx 16rpx; border-radius: 999rpx; background: rgba(255,255,255,0.06); color: #e6e8eb; border: 1rpx solid transparent; }
 .variant-chip.active { border-color: #8ab4ff; background: rgba(138,180,255,0.15); }
