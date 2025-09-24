@@ -38,16 +38,66 @@ if (!$payload) {
 try {
     $config = require_once '../../config/config.php';
     
-    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-        Response::error('文件上传失败', 400);
-    }
+    // 将 php.ini 中的大小单位（如 2M/512K）转为字节
+    $toBytes = function($val) {
+        if (is_numeric($val)) return (int)$val;
+        $val = trim($val);
+        $num = (int)$val;
+        $unit = strtolower(substr($val, -1));
+        switch ($unit) {
+            case 'g': return $num * 1024 * 1024 * 1024;
+            case 'm': return $num * 1024 * 1024;
+            case 'k': return $num * 1024;
+            default: return (int)$val;
+        }
+    };
     
+    if (!isset($_FILES['image'])) {
+        Response::error('未接收到文件', 400);
+    }
+
+    // 细化错误码提示，便于排查 ini 限制
+    if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        $err = $_FILES['image']['error'];
+        switch ($err) {
+            case UPLOAD_ERR_INI_SIZE:
+                // 超过 php.ini 的 upload_max_filesize 限制
+                Response::error('超过服务器单文件大小限制（upload_max_filesize）', 400);
+            case UPLOAD_ERR_FORM_SIZE:
+                // 超过表单 MAX_FILE_SIZE 限制
+                Response::error('超过表单允许的文件大小限制（MAX_FILE_SIZE）', 400);
+            case UPLOAD_ERR_PARTIAL:
+                Response::error('文件仅部分上传，请重试', 400);
+            case UPLOAD_ERR_NO_FILE:
+                Response::error('未选择文件', 400);
+            case UPLOAD_ERR_NO_TMP_DIR:
+                Response::error('服务器临时目录缺失', 500);
+            case UPLOAD_ERR_CANT_WRITE:
+                Response::error('服务器写入失败', 500);
+            case UPLOAD_ERR_EXTENSION:
+                Response::error('服务器扩展中断了上传', 500);
+            default:
+                Response::error('文件上传失败', 400);
+        }
+    }
+
     $file = $_FILES['image'];
     $uploadConfig = $config['upload'];
     
-    // 检查文件大小
+    // 检查文件大小（按业务配置）
     if ($file['size'] > $uploadConfig['max_size']) {
-        Response::error('文件大小超过限制', 400);
+        $phpUploadMax = $toBytes(ini_get('upload_max_filesize'));
+        $phpPostMax = $toBytes(ini_get('post_max_size'));
+        Response::error(
+            '文件大小超过限制',
+            400,
+            [
+                'file_size' => $file['size'],
+                'max_size' => $uploadConfig['max_size'],
+                'php_upload_max_filesize' => $phpUploadMax,
+                'php_post_max_size' => $phpPostMax
+            ]
+        );
     }
     
     // 检查文件类型
