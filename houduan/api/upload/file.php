@@ -5,6 +5,7 @@
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, Range');
+header('Access-Control-Expose-Headers: Content-Disposition, Content-Length');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit(0);
@@ -57,6 +58,23 @@ switch ($ext) {
 
 header('Content-Type: ' . $mime);
 header('Cache-Control: public, max-age=31536000, immutable');
+
+// 下载处置与文件名
+$forceDownload = isset($_GET['download']) ? (int)$_GET['download'] : 0;
+$suggestName = isset($_GET['filename']) ? trim($_GET['filename']) : '';
+if ($suggestName === '') {
+    $suggestName = basename($file);
+}
+// 简单清理文件名，避免注入
+$suggestName = str_replace(["\r","\n"], '', $suggestName);
+if ($forceDownload) {
+    $disp = 'attachment';
+} else {
+    $disp = 'inline';
+}
+// 同时提供标准与UTF-8扩展，增强兼容
+header('Content-Disposition: ' . $disp . '; filename="' . $suggestName . '"; filename*=UTF-8'''. rawurlencode($suggestName));
+header('Content-Length: ' . filesize($file));
 
 // 输出文件
 readfile($file);
