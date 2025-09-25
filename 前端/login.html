@@ -16,23 +16,92 @@
                 <div class="text-lg font-medium">登录 AI 3D</div>
             </div>
             <div class="space-y-3 text-sm">
+                <div id="msg" class="hidden text-xs p-2 rounded border"></div>
                 <div>
                     <label class="text-xs text-slate-400">邮箱</label>
-                    <input type="email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="you@example.com" />
+                    <input id="email" type="email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="you@example.com" />
                 </div>
                 <div>
                     <label class="text-xs text-slate-400">密码</label>
-                    <input type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="••••••••" />
+                    <input id="password" type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="••••••••" />
                 </div>
                 <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 text-xs"><input type="checkbox" class="accent-indigo-600" /> 记住我</label>
+                    <label class="flex items-center gap-2 text-xs"><input id="remember" type="checkbox" class="accent-indigo-600" /> 记住我</label>
                     <a href="#" class="text-xs text-slate-400">忘记密码？</a>
                 </div>
-                <button class="w-full bg-indigo-600 hover:bg-indigo-500 rounded-lg p-3">登录</button>
+                <button id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 rounded-lg p-3">登录</button>
                 <div class="text-xs text-center text-slate-400">没有账户？<a href="register.html" target="_parent" class="text-slate-200 underline">立即注册</a></div>
             </div>
         </div>
     </div>
+    <script>
+    (function(){
+        var emailInput = document.getElementById('email');
+        var pwdInput = document.getElementById('password');
+        var rememberCb = document.getElementById('remember');
+        var msg = document.getElementById('msg');
+        var btn = document.getElementById('submitBtn');
+
+        function setMsg(text, type){
+            msg.textContent = text || '';
+            if(!text){
+                msg.classList.add('hidden');
+                return;
+            }
+            msg.classList.remove('hidden');
+            var success = type === 'success';
+            msg.className = 'text-xs p-2 rounded border ' + (success ? 'text-emerald-300 bg-emerald-900/30 border-emerald-700' : 'text-rose-300 bg-rose-900/30 border-rose-700');
+        }
+
+        function getStorage(remember){
+            try {
+                return remember ? window.localStorage : window.sessionStorage;
+            } catch(e) {
+                return {
+                    setItem: function(){}, getItem: function(){}, removeItem: function(){}
+                };
+            }
+        }
+
+        function disable(el, d){
+            el.disabled = !!d;
+            el.classList.toggle('opacity-60', !!d);
+        }
+
+        btn.addEventListener('click', function(){
+            setMsg('');
+            var username = (emailInput.value || '').trim();
+            var password = (pwdInput.value || '').trim();
+            if(!username){ setMsg('请输入邮箱', 'error'); return; }
+            if(!password){ setMsg('请输入密码', 'error'); return; }
+
+            var storage = getStorage(!!rememberCb.checked);
+            disable(btn, true);
+            btn.textContent = '登录中...';
+
+            fetch('../houduan/api/auth/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            }).then(function(r){ return r.json(); })
+            .then(function(res){
+                if(res && res.code === 200 && res.data){
+                    storage.setItem('token', res.data.token);
+                    storage.setItem('user', JSON.stringify(res.data.user || {}));
+                    setMsg('登录成功，正在跳转...', 'success');
+                    setTimeout(function(){ window.location.href = 'home.html'; }, 500);
+                } else {
+                    setMsg((res && res.message) || '登录失败', 'error');
+                }
+            }).catch(function(err){
+                setMsg('网络错误：' + (err && err.message ? err.message : '请稍后重试'), 'error');
+            }).finally(function(){
+                disable(btn, false);
+                btn.textContent = '登录';
+            });
+        });
+    })();
+    </script>
 </body>
 </html>
 

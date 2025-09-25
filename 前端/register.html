@@ -16,27 +16,94 @@
                 <div class="text-lg font-medium">创建你的账户</div>
             </div>
             <div class="space-y-3 text-sm">
+                <div id="msg" class="hidden text-xs p-2 rounded border"></div>
                 <div>
                     <label class="text-xs text-slate-400">用户名</label>
-                    <input type="text" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="昵称" />
+                    <input id="username" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="昵称" />
                 </div>
                 <div>
                     <label class="text-xs text-slate-400">邮箱</label>
-                    <input type="email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="you@example.com" />
+                    <input id="email" type="email" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="you@example.com" />
                 </div>
                 <div>
                     <label class="text-xs text-slate-400">密码</label>
-                    <input type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="至少 8 位" />
+                    <input id="password" type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="至少 8 位" />
                 </div>
                 <div>
                     <label class="text-xs text-slate-400">确认密码</label>
-                    <input type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="再次输入密码" />
+                    <input id="confirm" type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mt-1" placeholder="再次输入密码" />
                 </div>
-                <button class="w-full bg-indigo-600 hover:bg-indigo-500 rounded-lg p-3">注册</button>
+                <button id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 rounded-lg p-3">注册</button>
                 <div class="text-xs text-center text-slate-400">已有账户？<a href="login.html" target="_parent" class="text-slate-200 underline">去登录</a></div>
             </div>
         </div>
     </div>
+    <script>
+    (function(){
+        var nameInput = document.getElementById('username');
+        var emailInput = document.getElementById('email');
+        var pwdInput = document.getElementById('password');
+        var confirmInput = document.getElementById('confirm');
+        var msg = document.getElementById('msg');
+        var btn = document.getElementById('submitBtn');
+
+        function setMsg(text, type){
+            msg.textContent = text || '';
+            if(!text){
+                msg.classList.add('hidden');
+                return;
+            }
+            msg.classList.remove('hidden');
+            var success = type === 'success';
+            msg.className = 'text-xs p-2 rounded border ' + (success ? 'text-emerald-300 bg-emerald-900/30 border-emerald-700' : 'text-rose-300 bg-rose-900/30 border-rose-700');
+        }
+
+        function disable(el, d){
+            el.disabled = !!d;
+            el.classList.toggle('opacity-60', !!d);
+        }
+
+        btn.addEventListener('click', function(){
+            setMsg('');
+            var username = (nameInput.value || '').trim();
+            var email = (emailInput.value || '').trim();
+            var password = (pwdInput.value || '').trim();
+            var confirm = (confirmInput.value || '').trim();
+
+            if(!username){ setMsg('请输入用户名', 'error'); return; }
+            if(!email){ setMsg('请输入邮箱', 'error'); return; }
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ setMsg('邮箱格式不正确', 'error'); return; }
+            if(!password){ setMsg('请输入密码', 'error'); return; }
+            if(password.length < 6){ setMsg('密码长度至少6位', 'error'); return; }
+            if(password !== confirm){ setMsg('两次输入的密码不一致', 'error'); return; }
+
+            disable(btn, true);
+            btn.textContent = '注册中...';
+
+            fetch('../houduan/api/auth/register.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, email: email, password: password })
+            }).then(function(r){ return r.json(); })
+            .then(function(res){
+                if(res && res.code === 200 && res.data){
+                    // 注册成功后直接登录：保存token并跳转
+                    try { window.localStorage.setItem('token', res.data.token); } catch(e){}
+                    try { window.localStorage.setItem('user', JSON.stringify(res.data.user || {})); } catch(e){}
+                    setMsg('注册成功，正在跳转到首页...', 'success');
+                    setTimeout(function(){ window.location.href = 'home.html'; }, 600);
+                } else {
+                    setMsg((res && res.message) || '注册失败', 'error');
+                }
+            }).catch(function(err){
+                setMsg('网络错误：' + (err && err.message ? err.message : '请稍后重试'), 'error');
+            }).finally(function(){
+                disable(btn, false);
+                btn.textContent = '注册';
+            });
+        });
+    })();
+    </script>
 </body>
 </html>
 
