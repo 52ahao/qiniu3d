@@ -21,7 +21,7 @@
 						<div id="mv-bar" class="h-1 bg-indigo-500 rounded" style="width:0%"></div>
 					</div>
 				</div>
-				<model-viewer id="mv" src="" camera-controls auto-rotate disable-zoom reveal="auto" style="--poster-color: transparent;" class="w-full h-full"></model-viewer>
+				<model-viewer id="mv" src="" camera-controls auto-rotate disable-zoom reveal="auto" crossorigin="anonymous" style="--poster-color: transparent;" class="w-full h-full"></model-viewer>
 				<button id="mv-full" class="absolute bottom-2 right-2 z-10 px-2 py-1 rounded bg-black/40 hover:bg-black/60 text-slate-200 text-xs border border-white/10" title="全屏预览">
 					<i class="fa-solid fa-expand"></i>
 				</button>
@@ -99,8 +99,15 @@
 
 	function fullUrl(rel){
 		if(!rel) return ''
-		if(/^https?:\/\//i.test(rel)) return rel
-		return 'http://localhost:3344/' + rel.replace(/^\/+/, '')
+		if(/^https?:\/\//i.test(rel)){
+			// 若已是绝对地址，转为走后端文件输出代理以带上正确的CORS
+			var abs = rel
+			var base = 'http://localhost:3344/'
+			if(abs.indexOf(base) === 0){ abs = abs.substring(base.length) }
+			return 'http://localhost:3344/api/upload/file.php?path=' + encodeURIComponent(abs.replace(/^\/+/, ''))
+		}
+		// 相对路径统一通过文件输出接口
+		return 'http://localhost:3344/api/upload/file.php?path=' + encodeURIComponent(rel.replace(/^\/+/, ''))
 	}
 
 	// 加载详情
