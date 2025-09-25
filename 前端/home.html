@@ -7,9 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>body{background:#0b0f1a}</style>
+    <script src="js/api.js"></script>
 </head>
 <body class="text-slate-200">
     <div class="max-w-7xl mx-auto p-4 space-y-8">
+        <div id="msg" class="hidden text-xs p-2 rounded border text-rose-300 bg-rose-900/30 border-rose-700"></div>
         <section class="grid md:grid-cols-2 gap-6 items-center">
             <div class="space-y-4">
                 <h1 class="text-3xl md:text-4xl font-semibold">用 AI 生成高质量三维模型</h1>
@@ -20,6 +22,7 @@
                 </div>
                 <div class="flex items-center gap-6 text-slate-400 text-xs">
                     <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i><span>快速生成</span></div>
+                    <div id="userBar" class="hidden flex items-center gap-2"><i class="fa-regular fa-user"></i><span></span></div>
                 </div>
             </div>
             <div class="relative">
@@ -41,40 +44,93 @@
 
         <section>
             <h2 class="text-lg font-medium mb-4">精选模型</h2>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a class="block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600" href="model-detail.html" target="_parent">
-                    <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop" class="h-44 w-full object-cover" alt="model-1" />
-                    <div class="p-3 text-sm">
-                        <div class="font-medium">科幻无人机</div>
-                        <div class="mt-1 flex items-center justify-between text-xs text-slate-400">
-                            <span><i class="fa-solid fa-cubes"></i> GLB</span>
-                            <span><i class="fa-regular fa-star"></i> 4.9</span>
-                        </div>
-                    </div>
-                </a>
-                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=1200&auto=format&fit=crop" class="h-44 w-full object-cover" alt="model-2" />
-                    <div class="p-3 text-sm">
-                        <div class="font-medium">未来载具</div>
-                        <div class="mt-1 flex items-center justify-between text-xs text-slate-400">
-                            <span><i class="fa-solid fa-cubes"></i> GLB</span>
-                            <span><i class="fa-regular fa-star"></i> 4.8</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1579165466741-7f35e4755662?q=80&w=1200&auto=format&fit=crop" class="h-44 w-full object-cover" alt="model-3" />
-                    <div class="p-3 text-sm">
-                        <div class="font-medium">机械手臂</div>
-                        <div class="mt-1 flex items-center justify-between text-xs text-slate-400">
-                            <span><i class="fa-solid fa-cubes"></i> GLB</span>
-                            <span><i class="fa-regular fa-star"></i> 4.7</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="modelsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
     </div>
+    <script>
+    (function(){
+        var msg = document.getElementById('msg');
+        var userBar = document.getElementById('userBar');
+        var modelsGrid = document.getElementById('modelsGrid');
+
+        function setMsg(text){
+            if(!text){ msg.classList.add('hidden'); msg.textContent = ''; return; }
+            msg.textContent = text;
+            msg.classList.remove('hidden');
+        }
+
+        function ensureAuthed(){
+            if(!API.getToken()){
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        function renderModels(models){
+            if(!models || !models.length){
+                modelsGrid.innerHTML = '<div class="text-sm text-slate-400">暂无模型，去生成你的第一个模型吧。</div>';
+                return;
+            }
+            var html = models.map(function(m){
+                var cover = (m.original_image && /^https?:\/\//i.test(m.original_image)) ? m.original_image : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop';
+                var type = (m.model_type || 'GLB').toUpperCase();
+                var href = 'model-detail.html?id=' + encodeURIComponent(m.id);
+                return (
+                    '<a class="block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600" href="'+ href +'" target="_parent">'
+                    + '<img src="'+ cover +'" class="h-44 w-full object-cover" alt="model-'+ (m.id || '') +'" />'
+                    + '<div class="p-3 text-sm">'
+                    +   '<div class="font-medium">'+ (m.name || '未命名模型') +'</div>'
+                    +   '<div class="mt-1 flex items-center justify-between text-xs text-slate-400">'
+                    +     '<span><i class="fa-solid fa-cubes"></i> '+ type +'</span>'
+                    +     '<span><i class="fa-regular fa-star"></i> '+ (m.download_count || 0) +'</span>'
+                    +   '</div>'
+                    + '</div>'
+                    + '</a>'
+                );
+            }).join('');
+            modelsGrid.innerHTML = html;
+        }
+
+        function loadProfile(){
+            return API.getJson('auth/profile.php', true)
+              .then(function(r){ return r.json; })
+              .then(function(res){
+                  if(res && res.code === 200){
+                      if(userBar){
+                          userBar.classList.remove('hidden');
+                          var span = userBar.querySelector('span');
+                          if(span){ span.textContent = (res.data.username || '用户') + ' · 积分 ' + (res.data.points || 0); }
+                      }
+                  } else if(res && (res.code === 401 || res.code === 403)){
+                      window.location.href = 'login.html';
+                  } else {
+                      setMsg((res && res.message) || '获取用户信息失败');
+                  }
+              }).catch(function(){ setMsg('网络错误：获取用户信息失败'); });
+        }
+
+        function loadModels(){
+            // 取最近的6个
+            var endpoint = 'model/list.php?page=1&limit=6';
+            return API.getJson(endpoint, true)
+              .then(function(r){ return r.json; })
+              .then(function(res){
+                  if(res && res.code === 200){
+                      renderModels(res.data && res.data.models ? res.data.models : []);
+                  } else if(res && (res.code === 401 || res.code === 403)){
+                      window.location.href = 'login.html';
+                  } else {
+                      setMsg((res && res.message) || '获取模型列表失败');
+                  }
+              }).catch(function(){ setMsg('网络错误：获取模型列表失败'); });
+        }
+
+        if(!ensureAuthed()){ return; }
+        // 并行加载
+        Promise.all([ loadProfile(), loadModels() ]).catch(function(){});
+    })();
+    </script>
 </body>
 </html>
 
