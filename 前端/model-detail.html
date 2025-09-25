@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+	<script src="js/api.js"></script>
     <style>body{background:#0b0f1a}</style>
 </head>
 <body class="text-slate-200">
@@ -20,14 +21,14 @@
 						<div id="mv-bar" class="h-1 bg-indigo-500 rounded" style="width:0%"></div>
 					</div>
 				</div>
-				<model-viewer id="mv" src="../../houduan/uploads/3d/15.glb" camera-controls auto-rotate disable-zoom reveal="auto" style="--poster-color: transparent;" class="w-full h-full"></model-viewer>
+				<model-viewer id="mv" src="" camera-controls auto-rotate disable-zoom reveal="auto" style="--poster-color: transparent;" class="w-full h-full"></model-viewer>
 				<button id="mv-full" class="absolute bottom-2 right-2 z-10 px-2 py-1 rounded bg-black/40 hover:bg-black/60 text-slate-200 text-xs border border-white/10" title="全屏预览">
 					<i class="fa-solid fa-expand"></i>
 				</button>
 			</div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+			<div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
                 <h2 class="text-base font-medium mb-3">描述</h2>
-                <p class="text-sm text-slate-400">科幻无人机三维模型，包含法线贴图与金属度纹理，适合实时渲染与游戏引擎。</p>
+				<p id="md-desc" class="text-sm text-slate-400">加载中…</p>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
                 <h2 class="text-base font-medium mb-3">预览截图</h2>
@@ -38,17 +39,17 @@
                 </div>
             </div>
         </div>
-        <aside class="space-y-4">
+		<aside class="space-y-4">
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <div class="flex items-center gap-3">
-                    <img src="https://images.unsplash.com/photo-1545996124-0501ebae84d0?q=80&w=96&auto=format&fit=crop" class="w-10 h-10 rounded-full border border-slate-700" />
-                    <div>
-                        <div class="text-sm font-medium">Aiden Studio</div>
-                        <div class="text-xs text-slate-400">2.4k 关注者</div>
-                    </div>
-                </div>
+				<div class="flex items-center gap-3">
+					<img id="md-author-avatar" src="" class="w-10 h-10 rounded-full border border-slate-700 bg-slate-800" />
+					<div>
+						<div id="md-author-name" class="text-sm font-medium">作者</div>
+						<div id="md-stats" class="text-xs text-slate-400"></div>
+					</div>
+				</div>
                 <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
-                    <button class="bg-indigo-600 hover:bg-indigo-500 px-3 py-2 rounded">下载 GLB</button>
+					<a id="md-download" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-2 rounded text-center" href="#" download>下载 GLB</a>
                     <button class="bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded">收藏</button>
                 </div>
             </div>
@@ -80,9 +81,49 @@
 	var box = document.getElementById('mv-loading')
 	var txt = document.getElementById('mv-progress')
 	var bar = document.getElementById('mv-bar')
+	var elDesc = document.getElementById('md-desc')
+	var elAuthor = document.getElementById('md-author-name')
+	var elAuthorAvatar = document.getElementById('md-author-avatar')
+	var elStats = document.getElementById('md-stats')
+	var elDownload = document.getElementById('md-download')
 
 	function hideLoading(){
 		if(box){ box.style.display = 'none' }
+	}
+
+	// 从URL获取id
+	function getQuery(name){
+		var m = location.search.match(new RegExp('(?:\\?|&)' + name + '=([^&]+)'))
+		return m ? decodeURIComponent(m[1]) : ''
+	}
+
+	function fullUrl(rel){
+		if(!rel) return ''
+		if(/^https?:\/\//i.test(rel)) return rel
+		return 'http://localhost:3344/' + rel.replace(/^\/+/, '')
+	}
+
+	// 加载详情
+	var modelId = getQuery('id') || ''
+	if(modelId){
+		API.getJson('model/detail.php?id=' + encodeURIComponent(modelId), true).then(function(res){
+			var ok = res && res.ok && res.json && (res.json.code === 200)
+			if(!ok){ throw new Error((res && res.json && res.json.message) || '加载失败') }
+			var data = res.json.data || {}
+			// 渲染模型地址
+			if(mv){ mv.src = fullUrl(data.model_file) || '' }
+			// 描述
+			if(elDesc){ elDesc.textContent = data.description || '暂无描述' }
+			// 作者
+			if(elAuthor){ elAuthor.textContent = data.username || '匿名' }
+			if(elAuthorAvatar){ elAuthorAvatar.src = data.avatar ? fullUrl(data.avatar) : '' }
+			// 统计（简单展示类型/下载数）
+			if(elStats){ elStats.textContent = (data.model_type || '').toUpperCase() + (data.download_count ? (' · 下载 ' + data.download_count) : '') }
+			// 下载
+			if(elDownload){ elDownload.href = data.model_file ? fullUrl(data.model_file) : '#' }
+		}).catch(function(err){
+			if(elDesc){ elDesc.textContent = '加载失败：' + (err && err.message ? err.message : '未知错误') }
+		})
 	}
 
 	function setProgress(p){
