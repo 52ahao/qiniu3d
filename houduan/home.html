@@ -27,7 +27,6 @@
             </div>
             <div class="relative">
                 <img class="w-full h-72 object-cover rounded-xl border border-slate-800" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1600&auto=format&fit=crop" alt="hero" />
-                <div class="absolute bottom-3 left-3 bg-black/60 backdrop-blur px-3 py-2 rounded text-xs border border-slate-800">真实 UI 图片来源：Unsplash</div>
             </div>
         </section>
 
@@ -115,25 +114,26 @@
         }
 
         function loadModels(){
-            // 取最近的6个
+            // 取最近的6个（无需登录）
             var endpoint = 'model/list.php?page=1&limit=6';
-            return API.getJson(endpoint, true)
+            return API.getJson(endpoint, false)
               .then(function(r){ return r.json; })
               .then(function(res){
                   if(res && res.code === 200){
                       renderModels(res.data && res.data.models ? res.data.models : []);
                   } else if(res && (res.code === 401 || res.code === 403)){
-                      modelsGrid.innerHTML = '<div class="text-sm text-slate-400">登录后可查看你的模型列表。</div>';
+                      modelsGrid.innerHTML = '<div class="text-sm text-slate-400">暂未获取到公开模型。</div>';
                   } else {
                       setMsg((res && res.message) || '获取模型列表失败');
                   }
               }).catch(function(){ setMsg('网络错误：获取模型列表失败'); });
         }
 
-        // 未登录展示游客信息；已登录再请求后端
+        // 未登录也可加载公开模型；已登录再请求用户信息
         if(!hasAuth()){
             showGuestBar();
-            modelsGrid.innerHTML = '<div class="text-sm text-slate-400">登录后可查看你的模型列表。</div>';
+            modelsGrid.innerHTML = '<div class="text-sm text-slate-400">正在加载模型...</div>';
+            loadModels();
         } else {
             Promise.all([ loadProfile(), loadModels() ]).catch(function(){});
         }

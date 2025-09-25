@@ -112,7 +112,7 @@
 	// 加载详情
 	var modelId = getQuery('id') || ''
 	if(modelId){
-		API.getJson('model/detail.php?id=' + encodeURIComponent(modelId), true).then(function(res){
+		API.getJson('model/detail.php?id=' + encodeURIComponent(modelId), false).then(function(res){
 			var ok = res && res.ok && res.json && (res.json.code === 200)
 			if(!ok){ throw new Error((res && res.json && res.json.message) || '加载失败') }
 			var data = res.json.data || {}
