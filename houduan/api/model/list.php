@@ -15,9 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     Response::error('请求方法不允许', 405);
 }
 
-// 验证JWT token
+// 读取JWT（可选）
 $headers = getallheaders();
 $token = null;
+$payload = null;
 
 if (isset($headers['Authorization'])) {
     $auth = $headers['Authorization'];
@@ -26,13 +27,8 @@ if (isset($headers['Authorization'])) {
     }
 }
 
-if (!$token) {
-    Response::error('未提供认证token', 401);
-}
-
-$payload = JWT::decode($token);
-if (!$payload) {
-    Response::error('认证token无效', 401);
+if ($token) {
+    $payload = JWT::decode($token);
 }
 
 try {
@@ -42,8 +38,14 @@ try {
     $limit = isset($_GET['limit']) ? max(1, min(50, intval($_GET['limit']))) : 20;
     $offset = ($page - 1) * $limit;
     
-    $where = "WHERE user_id = ?";
-    $params = [$payload['user_id']];
+    // 未登录：只返回公开模型；已登录：返回公开模型或当前用户的模型
+    if ($payload && isset($payload['user_id'])) {
+        $where = "WHERE (is_public = 1 OR user_id = ?)";
+        $params = [$payload['user_id']];
+    } else {
+        $where = "WHERE is_public = 1";
+        $params = [];
+    }
     
     // 状态筛选
     if (isset($_GET['status'])) {

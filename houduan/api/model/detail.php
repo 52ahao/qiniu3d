@@ -11,9 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// 验证JWT token
+// 读取JWT（GET可选，其它方法必需）
 $headers = getallheaders();
 $token = null;
+$payload = null;
 
 if (isset($headers['Authorization'])) {
     $auth = $headers['Authorization'];
@@ -22,13 +23,8 @@ if (isset($headers['Authorization'])) {
     }
 }
 
-if (!$token) {
-    Response::error('未提供认证token', 401);
-}
-
-$payload = JWT::decode($token);
-if (!$payload) {
-    Response::error('认证token无效', 401);
+if ($token) {
+    $payload = JWT::decode($token);
 }
 
 $modelId = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -41,14 +37,24 @@ try {
     $db = Database::getInstance();
     
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // 获取模型详情
-        $model = $db->fetch(
-            "SELECT m.*, u.username, u.avatar 
-             FROM models m 
-             LEFT JOIN users u ON m.user_id = u.id 
-             WHERE m.id = ? AND (m.user_id = ? OR m.is_public = 1)",
-            [$modelId, $payload['user_id']]
-        );
+        // 获取模型详情（匿名可读公开模型，登录可读自己模型）
+        if ($payload && isset($payload['user_id'])) {
+            $model = $db->fetch(
+                "SELECT m.*, u.username, u.avatar 
+                 FROM models m 
+                 LEFT JOIN users u ON m.user_id = u.id 
+                 WHERE m.id = ? AND (m.user_id = ? OR m.is_public = 1)",
+                [$modelId, $payload['user_id']]
+            );
+        } else {
+            $model = $db->fetch(
+                "SELECT m.*, u.username, u.avatar 
+                 FROM models m 
+                 LEFT JOIN users u ON m.user_id = u.id 
+                 WHERE m.id = ? AND m.is_public = 1",
+                [$modelId]
+            );
+        }
         
         if (!$model) {
             Response::error('模型不存在或无权限访问', 404);
@@ -72,16 +78,24 @@ try {
         );
         $model['comments'] = $comments;
         
-        // 检查是否已收藏
-        $favorite = $db->fetch(
-            "SELECT id FROM model_favorites WHERE user_id = ? AND model_id = ?",
-            [$payload['user_id'], $modelId]
-        );
-        $model['is_favorited'] = !empty($favorite);
+        // 检查是否已收藏（匿名时默认为false）
+        if ($payload && isset($payload['user_id'])) {
+            $favorite = $db->fetch(
+                "SELECT id FROM model_favorites WHERE user_id = ? AND model_id = ?",
+                [$payload['user_id'], $modelId]
+            );
+            $model['is_favorited'] = !empty($favorite);
+        } else {
+            $model['is_favorited'] = false;
+        }
         
         Response::success($model);
         
     } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        // 删除需要鉴权
+        if (!$payload || !isset($payload['user_id'])) {
+            Response::error('未提供认证token', 401);
+        }
         // 删除模型
         $model = $db->fetch(
             "SELECT * FROM models WHERE id = ? AND user_id = ?",
