@@ -202,7 +202,7 @@ export default {
     goToAbout() {
       uni.showModal({
         title: '关于我们',
-        content: '七牛3D v1.0.0\nAI驱动的3D模型生成平台\n\n让每个人都能轻松创建3D内容',
+        content: '七牛三弟 v1.0.0\nAI驱动的3D模型生成平台\n\n让每个人都能轻松创建3D内容',
         showCancel: false
       })
     },

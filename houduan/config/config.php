@@ -3,7 +3,7 @@
  * 应用配置文件
  */
 return [
-    'app_name' => '七牛3D',
+    'app_name' => '七牛三弟',
     'app_version' => '1.0.0',
     'debug' => true,
     

@@ -1,7 +1,7 @@
 {
   "name": "qiniu3d-frontend",
   "version": "1.0.0",
-  "description": "七牛3D前端项目",
+  "description": "七牛三弟前端项目",
   "main": "main.js",
   "scripts": {
     "dev": "npm run dev:h5",
@@ -29,6 +29,6 @@
     "3d",
     "ai"
   ],
-  "author": "七牛3D团队",
+  "author": "七牛三弟团队",
   "license": "MIT"
 }

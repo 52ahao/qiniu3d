@@ -4,7 +4,7 @@
       <view class="dialog-left">
         <view class="brand">
           <image class="brand-logo" src="/static/logo.png" mode="aspectFit"></image>
-          <text class="brand-title">七牛3D</text>
+          <text class="brand-title">七牛三弟</text>
           <text class="brand-sub">轻松工作，多点生活</text>
         </view>
         <view class="left-graphic"></view>
