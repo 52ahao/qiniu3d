@@ -87,7 +87,9 @@
                 if(res && res.code === 200 && res.data){
                     // 注册成功后直接登录：保存token并跳转
                     try { window.localStorage.setItem('token', res.data.token); } catch(e){}
+                    try { window.sessionStorage.setItem('token', res.data.token); } catch(e){}
                     try { window.localStorage.setItem('user', JSON.stringify(res.data.user || {})); } catch(e){}
+                    try { window.sessionStorage.setItem('user', JSON.stringify(res.data.user || {})); } catch(e){}
                     setMsg('注册成功，正在跳转到首页...', 'success');
                     setTimeout(function(){ window.location.href = 'home.html'; }, 600);
                 } else {

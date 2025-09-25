@@ -59,12 +59,14 @@
             msg.classList.remove('hidden');
         }
 
-        function ensureAuthed(){
-            if(!API.getToken()){
-                window.location.href = 'login.html';
-                return false;
+        function hasAuth(){ return !!API.getToken(); }
+
+        function showGuestBar(){
+            if(userBar){
+                userBar.classList.remove('hidden');
+                var span = userBar.querySelector('span');
+                if(span){ span.textContent = '游客 · 未登录'; }
             }
-            return true;
         }
 
         function renderModels(models){
@@ -78,7 +80,9 @@
                 var href = 'model-detail.html?id=' + encodeURIComponent(m.id);
                 return (
                     '<a class="block bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600" href="'+ href +'" target="_parent">'
-                    + '<img src="'+ cover +'" class="h-44 w-full object-cover" alt="model-'+ (m.id || '') +'" />'
+                    + '<div class="aspect-square w-full overflow-hidden">'
+                    +   '<img src="'+ cover +'" class="w-full h-full object-cover" alt="model-'+ (m.id || '') +'" />'
+                    + '</div>'
                     + '<div class="p-3 text-sm">'
                     +   '<div class="font-medium">'+ (m.name || '未命名模型') +'</div>'
                     +   '<div class="mt-1 flex items-center justify-between text-xs text-slate-400">'
@@ -103,7 +107,7 @@
                           if(span){ span.textContent = (res.data.username || '用户') + ' · 积分 ' + (res.data.points || 0); }
                       }
                   } else if(res && (res.code === 401 || res.code === 403)){
-                      window.location.href = 'login.html';
+                      showGuestBar();
                   } else {
                       setMsg((res && res.message) || '获取用户信息失败');
                   }
@@ -119,16 +123,20 @@
                   if(res && res.code === 200){
                       renderModels(res.data && res.data.models ? res.data.models : []);
                   } else if(res && (res.code === 401 || res.code === 403)){
-                      window.location.href = 'login.html';
+                      modelsGrid.innerHTML = '<div class="text-sm text-slate-400">登录后可查看你的模型列表。</div>';
                   } else {
                       setMsg((res && res.message) || '获取模型列表失败');
                   }
               }).catch(function(){ setMsg('网络错误：获取模型列表失败'); });
         }
 
-        if(!ensureAuthed()){ return; }
-        // 并行加载
-        Promise.all([ loadProfile(), loadModels() ]).catch(function(){});
+        // 未登录展示游客信息；已登录再请求后端
+        if(!hasAuth()){
+            showGuestBar();
+            modelsGrid.innerHTML = '<div class="text-sm text-slate-400">登录后可查看你的模型列表。</div>';
+        } else {
+            Promise.all([ loadProfile(), loadModels() ]).catch(function(){});
+        }
     })();
     </script>
 </body>
