@@ -12,7 +12,7 @@
 <body class="text-slate-200">
     <div class="max-w-7xl mx-auto p-4 grid lg:grid-cols-3 gap-6">
 		<div class="lg:col-span-2 space-y-4">
-			<div class="relative w-full h-[460px] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+			<div id="mv-wrap" class="relative w-full h-[460px] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
 				<div id="mv-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900">
 					<div class="h-10 w-10 rounded-full border-2 border-slate-600 border-t-transparent animate-spin"></div>
 					<div class="text-xs text-slate-400">模型加载中，请稍候… <span id="mv-progress">0%</span></div>
@@ -20,7 +20,10 @@
 						<div id="mv-bar" class="h-1 bg-indigo-500 rounded" style="width:0%"></div>
 					</div>
 				</div>
-				<model-viewer id="mv" src="../../houduan/uploads/3d/15.glb" poster="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1200&auto=format&fit=crop" camera-controls auto-rotate disable-zoom class="w-full h-full"></model-viewer>
+				<model-viewer id="mv" src="../../houduan/uploads/3d/15.glb" camera-controls auto-rotate disable-zoom reveal="auto" style="--poster-color: transparent;" class="w-full h-full"></model-viewer>
+				<button id="mv-full" class="absolute bottom-2 right-2 z-10 px-2 py-1 rounded bg-black/40 hover:bg-black/60 text-slate-200 text-xs border border-white/10" title="全屏预览">
+					<i class="fa-solid fa-expand"></i>
+				</button>
 			</div>
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
                 <h2 class="text-base font-medium mb-3">描述</h2>
@@ -72,6 +75,8 @@
 <script>
 (function(){
 	var mv = document.getElementById('mv')
+	var mvWrap = document.getElementById('mv-wrap')
+	var btnFull = document.getElementById('mv-full')
 	var box = document.getElementById('mv-loading')
 	var txt = document.getElementById('mv-progress')
 	var bar = document.getElementById('mv-bar')
@@ -96,10 +101,45 @@
 				else { setProgress(30) }
 			}catch(err){ setProgress(30) }
 		})
-		mv.addEventListener('load', function(){ setProgress(100); hideLoading() })
+		mv.addEventListener('load', function(){
+			setProgress(100)
+			// 延迟两帧，确保内部首帧渲染完成后再隐藏，避免闪屏
+			requestAnimationFrame(function(){
+				requestAnimationFrame(function(){ hideLoading() })
+			})
+		})
 		mv.addEventListener('error', function(){
 			if(txt){ txt.textContent = '加载失败' }
 		})
+	}
+
+	// 全屏切换
+	function isFullscreen(){
+		return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement)
+	}
+	function requestFs(el){
+		if(!el) return
+		if(el.requestFullscreen){ return el.requestFullscreen.call(el) }
+		if(el.webkitRequestFullscreen){ return el.webkitRequestFullscreen.call(el) }
+		if(el.msRequestFullscreen){ return el.msRequestFullscreen.call(el) }
+	}
+	function exitFs(){
+		if(document.exitFullscreen){ return document.exitFullscreen.call(document) }
+		if(document.webkitExitFullscreen){ return document.webkitExitFullscreen.call(document) }
+		if(document.msExitFullscreen){ return document.msExitFullscreen.call(document) }
+	}
+	function updateIcon(){
+		if(!btnFull) return
+		btnFull.innerHTML = isFullscreen() ? '<i class="fa-solid fa-compress"></i>' : '<i class="fa-solid fa-expand"></i>'
+	}
+	if(btnFull){
+		btnFull.addEventListener('click', function(){
+			if(isFullscreen()) exitFs(); else requestFs(mvWrap || mv)
+		})
+		document.addEventListener('fullscreenchange', updateIcon)
+		document.addEventListener('webkitfullscreenchange', updateIcon)
+		document.addEventListener('msfullscreenchange', updateIcon)
+		updateIcon()
 	}
 })();
 </script>
