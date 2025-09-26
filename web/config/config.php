@@ -31,8 +31,13 @@ return [
     // 第三方API配置
     'third_party' => [
         'hunyuan' => [
-            'api_key' => '', // 需要配置混元API密钥
+            'api_key' => '', // 兼容旧字段，可留空
             'base_url' => 'https://api.hunyuan.tencentcloudapi.com/',
+            // 新增：腾讯云密钥对与区域/版本配置
+            'secret_id' => getenv('TENCENTCLOUD_SECRET_ID') ?: '',
+            'secret_key' => getenv('TENCENTCLOUD_SECRET_KEY') ?: '',
+            'region' => 'ap-guangzhou',
+            'version' => '2024-10-01',
         ],
     ],
     

@@ -91,8 +91,7 @@ try {
         [$payload['user_id'], $cost, $modelId]
     );
     
-    // 这里应该调用第三方API生成3D模型
-    // 由于是示例，我们模拟异步处理
+    // 调用第三方API生成3D模型（若未配置密钥则走模拟流程）
     processModelGeneration($modelId, $input['image_url'], $input['model_type']);
     
     Response::success([
@@ -109,22 +108,108 @@ try {
  * 处理模型生成（异步任务）
  */
 function processModelGeneration($modelId, $imageUrl, $modelType) {
-    // 这里应该调用混元API或其他3D生成服务
-    // 示例代码，实际需要根据API文档实现
-    
-    // 模拟异步处理
     $config = require __DIR__ . '/../../config/config.php';
-    
-    // 这里应该实现真实的API调用
-    // $result = callHunyuanAPI($imageUrl, $modelType);
-    
-    // 模拟成功结果
-    $modelFile = 'models/' . $modelId . '_' . time() . '.obj';
-    
-    // 更新模型状态
+    $hunyuanConf = isset($config['third_party']['hunyuan']) ? $config['third_party']['hunyuan'] : [];
+    $secretId = isset($hunyuanConf['secret_id']) ? trim($hunyuanConf['secret_id']) : '';
+    $secretKey = isset($hunyuanConf['secret_key']) ? trim($hunyuanConf['secret_key']) : '';
+
+    if ($secretId && $secretKey) {
+        // 根据腾讯云文档 https://cloud.tencent.com/document/product/1804/120829
+        // 使用 TC3-HMAC-SHA256 进行签名并调用 SubmitHunyuanTo3DJob（接口名示例自文档概述）
+        try {
+            $endpoint = 'hunyuan.tencentcloudapi.com';
+            $service = 'hunyuan';
+            $host = $endpoint;
+            $action = 'SubmitHunyuanTo3DJob';
+            $version = '2024-10-01';
+            $region = 'ap-guangzhou';
+            $algorithm = 'TC3-HMAC-SHA256';
+            $timestamp = time();
+            $date = gmdate('Y-m-d', $timestamp);
+
+            $payload = json_encode([
+                'Input' => [
+                    'ImageUrl' => absoluteUrl($imageUrl),
+                    'Mode' => $modelType, // character|object|scene 映射
+                ],
+                'Output' => [
+                    'Format' => 'GLB'
+                ]
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            $canonicalUri = '/';
+            $canonicalQueryString = '';
+            $canonicalHeaders = 'content-type:application/json\nhost:' . $host . "\n";
+            $signedHeaders = 'content-type;host';
+            $hashedPayload = hash('sha256', $payload);
+            $canonicalRequest = "POST\n{$canonicalUri}\n{$canonicalQueryString}\n{$canonicalHeaders}\n{$signedHeaders}\n{$hashedPayload}";
+
+            $credentialScope = "$date/$service/tc3_request";
+            $stringToSign = "$algorithm\n$timestamp\n$credentialScope\n" . hash('sha256', $canonicalRequest);
+
+            $secretDate = hash_hmac('sha256', $date, 'TC3' . $secretKey, true);
+            $secretService = hash_hmac('sha256', $service, $secretDate, true);
+            $secretSigning = hash_hmac('sha256', 'tc3_request', $secretService, true);
+            $signature = hash_hmac('sha256', $stringToSign, $secretSigning);
+
+            $authorization = "$algorithm Credential=$secretId/$credentialScope, SignedHeaders=$signedHeaders, Signature=$signature";
+
+            $headers = [
+                'Authorization: ' . $authorization,
+                'Content-Type: application/json',
+                'Host: ' . $host,
+                'X-TC-Action: ' . $action,
+                'X-TC-Version: ' . $version,
+                'X-TC-Timestamp: ' . $timestamp,
+                'X-TC-Region: ' . $region,
+            ];
+
+            $ch = curl_init('https://' . $endpoint);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $resp = curl_exec($ch);
+            $err = curl_error($ch);
+            curl_close($ch);
+
+            if ($err) {
+                // 失败则标记为失败
+                $db = Database::getInstance();
+                $db->query("UPDATE models SET status = 'failed' WHERE id = ?", [$modelId]);
+                return;
+            }
+
+            $json = json_decode($resp, true);
+            // 假设返回包含 JobId 以及回调或查询方式
+            $jobId = isset($json['Response']['JobId']) ? (string)$json['Response']['JobId'] : '';
+
+            $db = Database::getInstance();
+            $db->query("UPDATE models SET status = 'processing' WHERE id = ?", [$modelId]);
+
+            // 简化：实际应通过回调或轮询查询结果。这里不阻塞，在后续查询接口里拉取结果。
+            return;
+        } catch (Exception $e) {
+            $db = Database::getInstance();
+            $db->query("UPDATE models SET status = 'failed' WHERE id = ?", [$modelId]);
+            return;
+        }
+    }
+
+    // 未配置密钥：本地模拟完成
+    $modelFile = 'models/' . $modelId . '_' . time() . '.glb';
     $db = Database::getInstance();
     $db->query(
         "UPDATE models SET status = 'completed', model_file = ? WHERE id = ?",
         [$modelFile, $modelId]
     );
+}
+
+function absoluteUrl($path){
+    if (preg_match('/^https?:\/\//i', $path)) return $path;
+    // 将相对站点路径转为可公网访问的完整URL，视部署域名调整
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $base = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+    return $scheme . '://' . $host . '/' . ltrim($path, '/');
 }

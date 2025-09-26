@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>body{background:#0b0f1a}</style>
+    <script src="js/api.js"></script>
 </head>
 <body class="text-slate-200">
     <div class="max-w-7xl mx-auto p-4 grid lg:grid-cols-3 gap-6">
@@ -16,18 +17,18 @@
                 <div class="grid md:grid-cols-2 gap-3">
                     <div class="space-y-2">
                         <label class="text-xs text-slate-400">正向提示</label>
-                        <textarea class="w-full h-28 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm" placeholder="例如：一架未来感无人机，银黑配色，干净硬朗的线条…"></textarea>
+                        <textarea id="input-positive" class="w-full h-28 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm" placeholder="例如：一架未来感无人机，银黑配色，干净硬朗的线条…"></textarea>
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs text-slate-400">反向提示</label>
-                        <textarea class="w-full h-28 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm" placeholder="排除：低多边形、模糊、错误拓扑…"></textarea>
+                        <textarea id="input-negative" class="w-full h-28 bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm" placeholder="排除：低多边形、模糊、错误拓扑…"></textarea>
                     </div>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-3">
                     <div>
                         <label class="text-xs text-slate-400">拓扑</label>
-                        <select class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
+                        <select id="select-topology" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
                             <option>四边面优先</option>
                             <option>三角面</option>
                             <option>自动混合</option>
@@ -35,7 +36,7 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-400">贴图</label>
-                        <select class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
+                        <select id="select-texture" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
                             <option>PBR（金属度/粗糙度）</option>
                             <option>仅颜色贴图</option>
                             <option>无贴图</option>
@@ -43,7 +44,7 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-400">分辨率</label>
-                        <select class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
+                        <select id="select-resolution" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm">
                             <option>2K</option>
                             <option>1K</option>
                             <option>4K</option>
@@ -52,20 +53,22 @@
                 </div>
 
                 <div class="flex items-center gap-3 text-sm">
-                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-indigo-600" checked /> 重拓扑</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-indigo-600" checked /> 法线烘焙</label>
-                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-indigo-600" /> 减面优化</label>
+                    <label class="flex items-center gap-2"><input id="chk-retopo" type="checkbox" class="accent-indigo-600" checked /> 重拓扑</label>
+                    <label class="flex items-center gap-2"><input id="chk-bake" type="checkbox" class="accent-indigo-600" checked /> 法线烘焙</label>
+                    <label class="flex items-center gap-2"><input id="chk-decimate" type="checkbox" class="accent-indigo-600" /> 减面优化</label>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>开始生成</button>
-                    <button class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm">上传参考图</button>
+                    <button id="btn-generate" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i><span id="gen-text">开始生成</span></button>
+                    <input id="file-input" type="file" accept="image/*" class="hidden" />
+                    <button id="btn-upload" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm">上传参考图</button>
+                    <span id="upload-hint" class="text-xs text-slate-400"></span>
                 </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
                 <h2 class="text-base font-medium mb-3">队列与历史</h2>
-                <div class="space-y-3 text-sm">
+                <div id="job-list" class="space-y-3 text-sm">
                     <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded p-3">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-spinner animate-spin text-slate-400"></i>
@@ -109,6 +112,135 @@
             </div>
         </aside>
     </div>
+    <script>
+      (function(){
+        var fileInput = document.getElementById('file-input');
+        var btnUpload = document.getElementById('btn-upload');
+        var btnGenerate = document.getElementById('btn-generate');
+        var genText = document.getElementById('gen-text');
+        var uploadHint = document.getElementById('upload-hint');
+        var jobList = document.getElementById('job-list');
+
+        var uploadedImageUrl = '';
+
+        function setUploading(state, text){
+          btnUpload.disabled = state;
+          btnUpload.classList.toggle('opacity-60', state);
+          uploadHint.textContent = text || '';
+        }
+
+        function setGenerating(state, text){
+          btnGenerate.disabled = state;
+          btnGenerate.classList.toggle('opacity-60', state);
+          genText.textContent = text || (state ? '生成中…' : '开始生成');
+        }
+
+        function appendPendingItem(title){
+          var wrapper = document.createElement('div');
+          wrapper.className = 'flex items-center justify-between bg-slate-950 border border-slate-800 rounded p-3';
+          wrapper.innerHTML = '<div class="flex items-center gap-3">\
+              <i class="fa-solid fa-spinner animate-spin text-slate-400"></i>\
+              <div>\
+                <div>'+ title.replace(/</g,'&lt;') +'（生成中…）</div>\
+                <div class="text-xs text-slate-400">队列已提交</div>\
+              </div>\
+            </div>';
+          jobList.prepend(wrapper);
+        }
+
+        btnUpload.addEventListener('click', function(){
+          fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function(){
+          if(!fileInput.files || !fileInput.files[0]) return;
+          var file = fileInput.files[0];
+          var token = (window.API && API.getToken && API.getToken()) || '';
+          if(!token){
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+
+
+            return;
+          }
+          var form = new FormData();
+          form.append('image', file);
+          setUploading(true, '上传中…');
+          fetch('api/upload/image.php', {
+            method: 'POST',
+            headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+            body: form
+          }).then(function(res){ return res.text().then(function(t){ return { ok: res.ok, json: (function(){ try{return JSON.parse(t);}catch(e){return null;} })() }; }); })
+            .then(function(result){
+              if(result.ok && result.json && result.json.data && result.json.data.url){
+                uploadedImageUrl = result.json.data.url;
+                setUploading(false, '已上传');
+              } else {
+                setUploading(false, (result.json && (result.json.message || result.json.msg)) || '上传失败');
+              }
+            })
+            .catch(function(){ setUploading(false, '上传失败'); });
+        });
+
+        btnGenerate.addEventListener('click', function(){
+          var positive = document.getElementById('input-positive').value.trim();
+          var negative = document.getElementById('input-negative').value.trim();
+          var topology = document.getElementById('select-topology').value;
+          var texture = document.getElementById('select-texture').value;
+          var resolution = document.getElementById('select-resolution').value;
+          var retopo = document.getElementById('chk-retopo').checked;
+          var bake = document.getElementById('chk-bake').checked;
+          var decimate = document.getElementById('chk-decimate').checked;
+
+          var token = (window.API && API.getToken && API.getToken()) || '';
+          if(!token){
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+            return;
+          }
+          if(!uploadedImageUrl){ alert('请先上传参考图'); return; }
+          if(!positive){ alert('请填写正向提示'); return; }
+
+          var name = positive.split(/[，,。.!？?]/)[0].slice(0, 30) || 'AI 模型';
+          var modelType = 'object';
+          // 简单映射，可按需扩展
+          if(/(人物|角色|人|女孩|男孩)/.test(positive)) modelType = 'character';
+          if(/(场景|房间|室内|室外|景观)/.test(positive)) modelType = 'scene';
+
+          var description = JSON.stringify({
+            positive: positive,
+            negative: negative,
+            options: {
+              topology: topology,
+              texture: texture,
+              resolution: resolution,
+              retopology: retopo,
+              normalBake: bake,
+              decimate: decimate
+            }
+          });
+
+          setGenerating(true, '生成中…');
+          (window.API && API.postJson ? API.postJson('api/model/generate.php', {
+            name: name,
+            description: description,
+            image_url: uploadedImageUrl,
+            model_type: modelType
+          }, true) : Promise.reject(new Error('API 不可用')))
+          .then(function(res){
+            if(res.ok && res.json && res.json.data){
+              appendPendingItem(name);
+              setGenerating(false);
+              alert('任务提交成功');
+            } else {
+              setGenerating(false);
+              alert((res.json && (res.json.message || res.json.msg)) || '提交失败');
+            }
+          })
+          .catch(function(){ setGenerating(false); alert('提交失败'); });
+        });
+      })();
+    </script>
 </body>
 </html>
 
