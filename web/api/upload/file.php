@@ -73,7 +73,8 @@ if ($forceDownload) {
     $disp = 'inline';
 }
 // 同时提供标准与UTF-8扩展，增强兼容
-header('Content-Disposition: ' . $disp . '; filename="' . $suggestName . '"; filename*=UTF-8'''. rawurlencode($suggestName));
+$cd = sprintf("Content-Disposition: %s; filename=\"%s\"; filename*=UTF-8''%s", $disp, $suggestName, rawurlencode($suggestName));
+header($cd);
 header('Content-Length: ' . filesize($file));
 
 // 输出文件
