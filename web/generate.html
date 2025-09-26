@@ -221,7 +221,7 @@
           });
 
           setGenerating(true, '生成中…');
-          (window.API && API.postJson ? API.postJson('api/model/generate.php', {
+          (window.API && API.postJson ? API.postJson('model/generate.php', {
             name: name,
             description: description,
             image_url: uploadedImageUrl,
